@@ -49,13 +49,11 @@ Recent work [?] demonstrates that under certain conditions, we can consistently 
 \begin{equation}
 p(z;\phi) \propto \exp \left( \sum_{i,j} \phi_{ij}z_iz_j \right)
 \end{equation}
-In our case, we are interested in modeling the joint distribution over and in this case this prior work insufficient for our since we need to estimate higher-order interactions, for example between $(y,x_i,x_j)$ for all $i$ and $j$. 
-
-In fact, as is explained in the paper, if we consider an Ising model over $(y,x_i,\ldots,x_n)$, then the conditional distribution of $y$ on $x_1,\ldots,x_n$ is directly equivalent to linear logistic regression
+In our case, this is insufficient for our since we are interested in estimating higher-order interactions, for example between $(y,x_i,x_j)$ for some $i$ and $j$. In fact, as is explained in the paper, if we consider an Ising model over $(y,x_i,\ldots,x_n)$, then the conditional distribution of $y$ on $x_1,\ldots,x_n$ is directly equivalent to linear logistic regression
 \begin{equation}
-p(y|x_1,\ldots x_n) = \frac{\exp(2 y\sum_i\theta_{i=1}^nx_i)}{\exp(2 y\sum_{i=1}^n\theta_ix_i) + 1}
+p(y|x_1,\ldots x_n) = \frac{\exp(2 y\sum_{i=1}^n\theta_ix_i)}{\exp(2 y\sum_{i=1}^n\theta_ix_i) + 1}
 \end{equation}
-where we have abused notation slightly by allowing $y,x_1,\ldots,x_n \in \{-1,1\}$ and have used $\theta_i$ to represent the pairwise factor between $y$ and $x_i$.
+where we have abused notation slightly by formulating our problem using Ising model conventions with $y,x_1,\ldots,x_n \in \{-1,1\}$ and $\theta_i$ representing the pairwise factor between $y$ and $x_i$.
 
 \section{Theoretical analysis}
 
