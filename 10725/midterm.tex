@@ -49,17 +49,28 @@ Recent work [?] demonstrates that under certain conditions, we can consistently 
 \begin{equation}
 p(z;\phi) \propto \exp \left( \sum_{i,j} \phi_{ij}z_iz_j \right)
 \end{equation}
-However, this is insufficient for our purposes since we need to estimate the interaction between $(y,x_i,x_j)$ in order to find the optimal quadratic model. Therefore, we focus on exploring how Ising model selection can be used to solve the optimization problem \eqref{problem}. The naive solution of simply adding extra nodes to the graph representing $x_ix_j$ for all $i,j$ is clearly unsatisfactory since this results in an algorithm that is quadratic in the number of variables. 
+In our case, we are interested in modeling the joint distribution over and in this case this prior work insufficient for our since we need to estimate higher-order interactions, for example between $(y,x_i,x_j)$ for all $i$ and $j$. 
 
-TODO(mwytock): Include more info to show that this is equivalent to modeling linear logistic regression between y and other variables as is explained in the paper  
-
-Instead, we explore cases in which we can find the optimal quadratic factors without explicitly enumerating them apriori.
+In fact, as is explained in the paper, if we consider an Ising model over $(y,x_i,\ldots,x_n)$, then the conditional distribution of $y$ on $x_1,\ldots,x_n$ is directly equivalent to linear logistic regression
+\begin{equation}
+p(y|x_1,\ldots x_n) = \frac{\exp(2 y\sum_i\theta_{i=1}^nx_i)}{\exp(2 y\sum_{i=1}^n\theta_ix_i) + 1}
+\end{equation}
+where we have abused notation slightly by allowing $y,x_1,\ldots,x_n \in \{-1,1\}$ and have used $\theta_i$ to represent the pairwise factor between $y$ and $x_i$.
 
 \section{Theoretical analysis}
 
-\subsection{Exploiting graph structure}
+In this section, we consider approaches that allow us to find optimal solutions to our optimization problem without requiring that we enumerate all possible feature combinations. First, we consider the scenario in which we are given a set of conditional independencies in the form of a Markov random field. Second, we propose a greedy iterative approach and demonstrate a simple case in which it recovers the true solution.
 
-TODO(mwytock): Write about graph separation, etc. can cite Daphne's book
+\subsection{Markov random fields}
+
+A Markov random field represents a multivariate distribution with a graph in which the vertices represent variables and the edges represent conditional independencies. In our problem, we consider the multivariate distirbution over $(y,x_1,\ldots,x_n)$ and are interested in the neighborhood around $y$. Specifically, given a random field representing the true distribution we can conclude that
+\begin{itemize}
+\item $y$ is conditionally independent of $x_i$ if there is no edge between $x_i$ and $y$.
+\item $y$ may depend on $x_ix_j$ if and only if there exists a clique in the graph containing $y$, $x_i$ and $x_j$
+\end{itemize}
+These observations allow us to immediately exclude many variables and combinations of variables from consideration when building a model. For example, if we are interested in learning all quadratic combinations of input features, we must consider at most $O(nd)$ where $d$ is the maximal neighborhood in the graph which may be far smaller than $n$ if the graph is sparse.
+
+Although structure learning in graphical models is a hard problem in itself, recent work has demonstrated that under certain conditions we can learn the structure efficiently [?].
 
 \subsection{Greedy iterative approach}
 
@@ -96,9 +107,5 @@ By taking derivatives, its straightforward to see that an optimal solution to th
 and $\theta_i = 0$ for $i > 2$. Furthermore, for any parameterization of this model such that $\theta_2^* \ne \theta_1^*$, this solution is unique which implies that the first step of our iterative algorithm will recover the correct support in $\theta^{(1)}$ and therefore in step 2 we will allow $\theta_1$, $\theta_2$ and $\theta_{12}$ to be nonzero which will gives us the optimal solution.
 
 This analysis was done with respect to the true probabilities which in practice we would estimate from data. It is clear, that at least in this simple model we can expect our algorithm to recover the true solution in the limit of infinite data. 
-
-\subsubsection{General case}
-
-TODO(mwytock): To be done last, perhaps leave for later
 
 \end{document}
