@@ -583,13 +583,14 @@
    \def\@makefnmark{\hbox
        to 0pt{$^{\@thefnmark}$\hss}}
      \twocolumn[\@maketitle]
-\@thanks
- \endgroup
- \setcounter{footnote}{0}
- \let\maketitle\relax
- \let\@maketitle\relax
- \gdef\@thanks{}\gdef\@author{}\gdef\@title{}\gdef\@subtitle{}\let\thanks\relax
- \@copyrightspace}
+}
+%% \@thanks
+%%  \endgroup
+%%  \setcounter{footnote}{0}
+%%  \let\maketitle\relax
+%%  \let\@maketitle\relax
+%%  \gdef\@thanks{}\gdef\@author{}\gdef\@title{}\gdef\@subtitle{}\let\thanks\relax
+%%  \@copyrightspace}
 
 %% CHANGES ON NEXT LINES
 \newif\if@ll % to record which version of LaTeX is in use
