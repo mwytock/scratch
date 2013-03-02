@@ -34,7 +34,7 @@ plot(R(2,:), P(2,:), 'b', 'LineWidth', 1);
 plot(R(3,:), P(3,:), 'b--', 'LineWidth', 1);
 plot(R(4,:), P(4,:), 'Color', [0 0.5 0], 'LineWidth', 1);
 plot(R(5,:), P(5,:), '--', 'Color', [0 0.5 0], 'LineWidth', 1);
-legend('Hybrid', 'Sim + Relevance', 'Similarity', 'KB + Relevance', ...
+legend('Hybrid', 'Sim + relevance', 'Similarity', 'KB + relevance', ...
        'Knowledge base');
 prepare_figure('expt2.pdf', [3.32 2.5], 'Recall', 'Precision');
 set(gca, 'FontSize', 8);
