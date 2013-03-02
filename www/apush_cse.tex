@@ -146,7 +146,7 @@ course-specific corpora.
 Our ultimate goal is to create a system, which, given a course textbook will
 produce a search engine that is appropriate for that course. In this work, we
 use [9?], which is available in PDF form, to create a search engine for the AP US
-History course, which was taken by over 400,000 students in 2011 [10?]. 
+History course, which was taken by over 400,000 students in 2011 \cite{wikipedia}. 
 
 Building and running a search engine requires a substantial investment in
 engineering and infrastructure. Fortunately, Google offers the custom search
@@ -187,17 +187,21 @@ and those that were good. 768 were off-topic or not appropriate, leaving us with
 989 good sites. So, if we were to randomly select sites, only 56\% of the
 selected sites will be good. 
 
+\begin{figure}
+\includegraphics[width=3.32in]{teacher_eval}
+\caption{Side-by-side comparison of the APUSH search engine and Google}
+\label{fig-eval}
+\end{figure}
+
 We created a custom search engine using the good sites (available at
 \url{http://guha.com/apushcse.html}). In order to evaluate this search engine,
 we collected a set of 20 queries \textcolor{red}{Good to include queries in an
   appendix} and asked a set of 4 history teachers to
 compare results from Google versus results from the custom search in a blind
 side-by-side test setup. They were asked to assign one of the following ratings
-to each side-by-side---side A/B is better, side A/B are about the same. The
-results of this evaluation are shown in Table 1. As can be seen,  the course
-specific custom search is substantially preferred.  
-
-\textcolor{red}{Add bar chart here w/ 4+1 charts for each teacher}
+to each side-by-side---side A/B is better, side A/B are about the same. As can
+be seen in Figure \ref{fig-eval}, the course-specific custom search engine is
+substantially preferred.
 
 \section{Methods for automation}
 
@@ -352,25 +356,75 @@ references to more Harvard\_University\_Alumni (34), a total of 6533 entities in
 DBPedia are associated with this category, giving Harvard\_University\_Alumni a
 much lower score than American\_Presidents. 
 
-\textcolor{red}{Put Table 4/5 in a single two-column table here in latex format}
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|} \hline
+19th-century presidents of the United States \\
+United States Presidential Candidates \\
+Oneida New York \\
+Presidents of the United States \\
+Whig Party \\
+Presidency of James Monroe \\
+Christian denominational families \\
+\hline \end{tabular}
+\caption{DBPedia categories for APUSH}
+\label{tab-categories}
+\end{center}
+\end{table}
 
-Table 4 gives some of the top rated
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|} \hline
+Andrew Jackson \\
+Martin Van Buren \\
+Thomas Jefferson \\
+James Monroe \\
+Abraham Lincoln \\
+James Buchanana \\
+Zachary Taylor \\
+William Henry Harrison \\
+Russia \\
+\hline\end{tabular}
+\caption{DBPedia entities for APUSH}
+\label{tab-entities}
+\end{center}
+\end{table}
+
+Table \ref{tab-categories} gives some of the top-rated
 categories for APUSH, i.e., the categories that are considered most relevant to
 APUSH. As can be seen, of the hundreds of thousands of categories in
 DBPedia (which includes categories for rock stars, planets, etc.), the
 ones that come up are indeed very apropos to US History.           
 We then score each entity by summing the scores for the categories that it is
 associated with. For example, the entity Abraham\_Lincoln gets a contribution
-from each of the 29 categories that it is a part of. Table 5 gives some of the
-top rated entities. 
+from each of the 29 categories that it is a part of. Table \ref{tab-entities}
+gives some of the top-rated entities. 
 
-\textcolor{red}{Table 6 here}
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|} \hline
+Whigs in Congress \\
+President Harrison \\
+President Monroe \\
+James Monroe \\
+President Johnson \\
+Thomas Jefferson \\
+President Adams \\
+Second Bank \\
+Andrew Jackson \\
+President Van Buren \\
+\hline\end{tabular}
+\caption{Highest scoring proper terms for APUSH}
+\label{tab-terms}
+\end{center}
+\end{table}
 
 Next, we score each proper term by adding the scores of all the entities that it
 could refer to. So, since ``Abraham Lincoln'' could refer to the president or the
-movie with that name, each entity contributes a score. Table 6 gives some of the
-top rated proper terms. Again, as can be seen, of the millions of entries in
-DBPedia, the ones chosen are indeed very highly apropos to the APUSH context. 
+movie with that name, each entity contributes a score. Table \ref{tab-terms}
+gives some of the top rated proper terms. Again, as can be seen, of the millions
+of entries in DBPedia, the ones chosen are indeed very highly apropos to the
+APUSH context.  
 
 We then score each query based on the proper terms in the query. Finally we
 score each of the sites based on the scores associated with the queries for
@@ -447,7 +501,7 @@ in the top 100, 200, 300, 400 and 500 sites picked by the algorithm.
   of the simple frequency-based scoring approach here as this is really a baseline
   not a proposed method. Include graph.}  
 
-\textcolor{red}{Include graphs of results here 
+
 
 \subsection{Relevance feedback and hybrid scoring}
 
