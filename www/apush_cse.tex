@@ -255,72 +255,71 @@ frequency of occurrence. We sum the document vectors across the entire site and
 compute the cosine similarity between the resulting site vector and that of
 the APUSH textbook.
 
-\subsection{Knowledge base approach}
+\subsection{Knowledge bases}
 
-Most queries and web documents are about real world entities.  This realization
-has led many of the big search engines to build various kinds of knowledge
-bases to augment their search results \textcolor{red}{Nice to cite blog post
-  here}. There has also been a lot of work in the area of the semantic web
-and linked data \cite{berners2001semantic,bizer2008linked} which aim to build a
+The realization that most queries and web documents are about real word entities
+has led  many of the major search engine providers to build various kinds of knowledge
+bases to augment their search results (see for example \cite{googlekg}). In the
+academic sphere, there has also been significant work on the semantic
+web \cite{berners2001semantic} and linked data \cite{bizer2008linked}, aiming to build a
 large distributed network of information about entities and the relations
-between them. In this section, we describe how this source of information can be
+between them. In this section, we describe how knowledge bases can be
 used to improve the ranking based on simple textual similarity.  
 
-Some types of entities lead to more off-topic results than others. For example,
-places (e.g., Virginia, Maryland) are more likely to lead to results that are
-not about history compared to US presidents since the former will bring up real
-estate and local results. US Presidents in turn are more likely to bring up
-off-topic results compared to Confederate Generals, since the former are more
-likely to have institutions and places named after them. This relative preference
-(Confederate Generals better than US Presidents better than Places) captures
-some of the APUSH context. 
+First, we observe that some types of entities lead to more off-topic results than
+others. For example, places (e.g., Virginia, Maryland) are more likely to lead
+to results that are not about history compared to US presidents since the former
+will bring up real estate and local results. US presidents in turn are more
+likely to bring up off-topic results compared to Confederate generals, since the
+former are more likely to have institutions and places named after them. This
+relative preference (Confederate generals better than US presidents better than
+places) captures some of the APUSH context. 
 
 Our goal is to automatically identify the types that are more likely to give
-good results and give greater preference to the sites that are pulled up for
-queries that contain references to these kinds of entities. Before we can do
-that, we need to map the proper nouns we extract from the text to entities and
-the entities to types of entities. Ideally, we would like to do this in a
-fashion that is not specific to history, but will work with little or no change
-to many other subjects. To do this, we need a broad knowledge base about a large
-number of entities, along with information about the type of each
-entity. Wikipedia contains this kind of information about a large number of
-entities and DBPedia makes this information available as a structured knowledge
-base. Each ``thing'' in Wikipedia corresponds to an entity in DBPedia
-(www.dbpedia.org) and each ``category'' in Wikipedia corresponds to a DBPedia
-type. We will use DBPedia as the primary source of entities, types and for
-mapping proper nouns to entities and entities to types. 
+good results and give greater preference to the sites that contain these kinds
+of entities. In order to do this, construct mappings from the proper nouns that
+we extract from the text to entities and from the entities to types of
+entities. To do this in a fashion that is not specific to history, we need a
+broad knowledge base about a large number of entities, along with information
+about the type of each entity. Wikipedia contains such information and DBPedia
+(available at \url{http://dbpedia.org/}) makes this information available as a
+structured knowledge base. In particular, each ``thing'' in Wikipedia
+corresponds to an entity in DBPedia and each ``category'' in Wikipedia
+corresponds to a DBPedia type. We will use DBPedia as the primary source of
+entities, types and for mapping proper nouns to entities and entities to types. 
 
-There could be many different proper nouns corresponding to a single real world
-entity. For example, President Lincoln, Abraham Lincoln, Abe Lincoln, etc. all
-refer to the same person. Similarly, a given proper noun (e.g., Washington) could
-map to multiple different entities. We found that the most robust way of mapping
-from proper nouns to candidate entities is to use search itself. For every
-proper noun P, we issue the query [P site:wikipedia.org]. Each of the search
-urls has the form http://en.wikipedia.org/wiki/<entity-id>. The first three entities
-for each query are used as candidate entities for the corresponding proper
-noun. Each entity may have a number of categories associated with it. For
+Next, we consider the task of mapping proper nouns extracted from text
+to a set of candidate entities and types in DBpedia. In general, there are many
+different proper nouns that refer to the same real world entity---for example,
+President Lincoln, Abraham Lincoln, and Abe Lincoln all refer to the same 
+person. Similarly, a given proper noun (e.g., Washington) could map to multiple
+different entities. We found that the most robust way of mapping from proper
+nouns to entities is to use search itself using the following method. For every
+proper noun P, we issue the query [P site:wikipedia.org] which returns a set of
+results with urls of the form ``http://\-en.wikipedia.org/wiki/<entity-id>''. We take
+the top 3 entities for each query as the candidate entities for the corresponding
+proper noun. Each entity may also have a number of categories associated with it---for  
 example, the entity whose unique identifier is Abraham\_Lincoln has 29
 different categories associated with it: American\_Presidents,
-Illinois\_Lawyers, Assasinated\_HeadsOfState, etc. This mapping is done using
-the RDF dumps from DBPedia. 
+Illinois\_Lawyers, Assasinated\_HeadsOfState, etc. We use the RDF dumps from
+DBpedia to construct the mapping from entities to categories.
 
-The next step is to assign a score to each category. The score is a measure of
-the likelihood of a query containing a proper term that refers to an entity in
-that category bringing up a site with on-topic results. The intuition behind the
+Given these mappings from proper nouns to categories, we score each category
+according to the likelihood of a query with proper nouns in that category
+bringing up sites with on-topic results. The intuition behind the
 scoring algorithm is as follows. A course, such as APUSH, is about certain
-categories of entities and the relationships between them. These categories
-should be assigned higher scores. An example of such a category would be
-American\_Presidents. There will be a number of other categories that also
-appear, but only incidentally. These should get lower scores. Examples of such
-categories would be Illinois\_Lawyers and Noble\_titles. We would expect that a
-larger fraction of the entities in a category that the course is about will
-occur in the textbook compared to categories that appear incidentally. The score
-for the $i$th category is given by
+categories of entities and the relationships between them, for example
+American\_Presidents. These categories should be assigned higher scores than
+categories that appear only incidentally, such as Illinois\_Lawyers and
+Noble\_titles. We would expect that a larger fraction of the entities in a
+category that the course is about will occur in the textbook compared to
+categories that appear incidentally. Thus we score a particular category with
+the ratio
 \begin{equation}
-CategoryScore_i = \frac{\#Textbook_i}{\#DBpedia_i}
+CategoryScore = \frac{\#Textbook}{\#DBpedia}
 \end{equation}
-where $\#Textbook_i$ and $\#DBpedia_i$ count occurences of entities in the
-textbook and DBPedia, respectively. 
+where $\#Textbook$ and $\#DBpedia$ count the number of times entities in
+the category occur in the textbook and DBpedia, respectively.
 
 For example, the textbook contains references to 33 entities in the category
 American\_Presidents, which, in DBPedia is associated with 44 entities, giving
@@ -363,10 +362,10 @@ Russia \\
 \end{center}
 \end{table}
 
-Table \ref{tab-categories} gives some of the the categories that are considered
-most relevant to APUSH. As can be seen, of the hundreds of thousands of categories in
-DBPedia (which includes categories for rock stars, planets, etc.), the
-ones that come up are indeed very apropos to US History.           
+Table \ref{tab-categories} gives top categories considered most relevant to
+APUSH by this algorithm. As can be seen, of the hundreds of thousands of
+categories in DBPedia (which includes categories for rock stars, planets, etc.), the
+top scoring categories are indeed very apropos to US History.           
 We then score each entity by summing the scores for the categories that it is
 associated with. For example, the entity Abraham\_Lincoln gets a contribution
 from each of the 29 categories that it is a part of. Table \ref{tab-entities}
@@ -398,87 +397,73 @@ gives some of the top-rated proper terms. Again, as can be seen, of the millions
 of entries in DBPedia, the ones chosen are indeed very highly apropos to the
 APUSH context.  
 
-We then score each query based on the proper terms in the query. Finally we
+We then score each query based on the proper terms in the query. Finally, we
 score each of the sites based on the scores associated with the queries for
 which they produced results. The score for the site is the average of the query
 scores. This gives us a ranking of sites by the likelihood of them being a good
 candidate for inclusion into the APUSH search engine. 
-
-This approach reduces the probability of off-topic results occuring
-for our query. By utilizing a topicality based scoring approach, it
-eliminates results for non-APUSH interpretations of a
-particular query.
-
-
-\textcolor{blue}{Does the paragraph above communicate this?}
-
-\textcolor{red}{We should tie this approach (and the topicality scoring
-  approach) directly to the the 3 problems laid out in the introduction:
-  off-topic, inappropriate, wrong level. In particular, 
-  its clear that both deal with off-topic results easily but not so clear how
-  they work for inappropriate and wrong level.}
 
 \subsection{Relevance feedback}
 
 \begin{figure*}[t!]
 \includegraphics[width=3.45in]{expt}
 \includegraphics[width=3.45in]{expt_relevance}
-\caption{Comparison of algorithms}
+\caption{Comparison of basic algorithms on classification of APUSH
+  sites (left) and  augmented with relevance feedback and hybrid scoring (right)}
 \label{fig-expt}
 \end{figure*}
 
-
-While textual similarity based metrics are very powerful for identifying
-off-topic sites, they are not capable of identifying sites that are on-topic,
-but likely inappropriate for academic purposes (such as answers.yahoo.com or
-ConfederateAmericanPride.com). These sites are indeed on-topic, but pure
-similarity based metrics cannot detect the bias. For this, we need some form of
-human judgement. We next describe a mechanism for getting this by analyzing the
-search engine's usage. 
+The previous two algorithms address the fundamental problem of off-topic search
+results that we discuss in the introduction. As we demonstrate in the
+experimental section, they both make significant progress toward automated
+construction of the course-specific search engine for APUSH. However, they are
+not capable of identifying sites that are on-topic but either at the wrong
+academic level or inappropriate for academic purposes, such as answers.yahoo.com or
+ConfederateAmericanPride.com. To address these issues, we employ a classical
+method in information retrieval, relevance feedback. 
 
 Using relevance feedback to improve the performance of systems is an established
-technique \cite{salton1997improving}. As the search engine gets used, we can
+technique \cite{salton1997improving}---as the search engine gets used, we can
 interpret clicks from the user as feedback. For example, if users repeatedly
-skip results from a certain site (even when pages from that site are ranked
-higher), preferring results from certain other sites, they are expressing a
-judgement about the appropriateness of that site for APUSH. 
+skip results from a certain site even when pages from that site are ranked
+higher, preferring results from certain other sites, they are expressing a
+judgement about the relevance of that site to the APUSH context. 
 
-\textcolor{red}{First, describe how we use the labeled data to generate fake
-  relevance feedback. It would be best to use the equation environment to make
-  it easy to parse. }
+However, evaluating relevance feedback algorithms requires large amounts of
+usage data, which is not available for a new search engine. Instead, we 
+reuse the manually curated sites to evaluate the utility of relevance feedback
+in our context. Of the sites that had been manually curated, we randomly
+select 50 good and 50 bad sites. In practice, this list of good and bad
+sites would be obtained from usage logs. 
 
-\textcolor{blue}{Isn't this described below?}
+In order to use relevance feedback to improve the text similarity algorithm, we
+aggregate the good sites and bad sites into two large composite documents. Then,
+we score each site using the TF-IDF weight text similarity algorithm described
+in the previous section to generate a $GoodScore$ and a $BadScore$ for each
+document. We then form the $RelTextScore$ as 
+\begin{equation}
+RelTextScore = TextScore + GoodScore - BadScore
+\end{equation}
+where $TextScore$ denotes the text similarity score between the document and
+the APUSH textbook.
 
-Evaluating relevance feedback algorithms requires large amounts of usage
-data, which we don't have. So, we instead reused some of the manually curated
-sites to evaluate the utility of relevance feedback in our context. Of the sites
-that had been manually curated, we randomly selected 50 good sites and 50 bad
-sites. In practice, this list of good and bad sites would be obtained from usage
-logs. We aggregate the good sites and bad sites, each, into a single composite
-document, so that we have 2 large documents, one corresponding to the good sites
-(GD) and another corresponding to the bad sites (BD). Then, for each site we are
-trying to score, we compute the similarity of the site to GD and BD. The net
-relevance feedback score is the Good Score minus the Bad Score. 
-
-\textcolor{red}{Now, with the fake feedback data out of the way we can describe
-  the two methods in a way that is agnostic as to whether the data is fake
-  agnostic as to whether its real or fake data}. 
-
-The overall score for the site is the score for similarity to the APUSH textbook + the score
-for similarity to the good sites - score for similarity to the bad sites. 
-
-We can also incorporate relevance feedback to incrementally improve
-performance. As with relevance feedback for similarity scoring, we sample 50
-good and bad sites from the manually curated list to simulate data from actual
-usage of the search engine. We compute a relevance feedback score for each
-category as follows. We take the categories associated with each query (from the
-previous step) and propagate them to the sites associated with the query to get
+To augment the knowledge base approach, we compute a relevance feedback score
+for each category as follows. We take the categories associated with each query 
+and propagate them to the sites associated with the query to get
 a set of categories associated with each site. The score associated with each
-category is (Ng-Nb)where Ngis the number of good sites associated with the
-category and Nbis the number of bad sites associated with the category. Then, as
-before, we propagate the category scores to the sites.  
+category is 
+\begin{equation}
+RelCategoryScore = \#Good - \#Bad
+\end{equation}
+where $\#Good$ is the number of good sites associated with the category and $\#Bad$ is
+the number of bad sites associated with the category. Then, as before, we
+propagate the category scores to the sites.   
 
 \section{Experimental results}
+
+\textcolor{red}{Clean this up}
+
+
 
 Of the 1453 sites we examined as part of the manual curation, 582 were good, 871
 tended to give off-topic or inappropriate (i.e., bad) results. So, randomly
