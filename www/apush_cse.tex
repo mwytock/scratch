@@ -193,85 +193,69 @@ course-specific custom search engine is substantially preferred.
 \section{Methods for automation}
 
 Our long term goal is to be able to create a course-specific search engine from
-the course textbook with minimal manual supervision. The reference search engine
-described above involved manual curation of thousands of sites, a process that
-is very time-consuming and expensive. Our goal is to automatically distinguish
-between sites that produce off-topic results / sites that are inappropriate for
+the course textbook with minimal manual supervision. In particular, instead of manually
+curating thousands of sites, we wish to develop algorithms that distinguish
+between sites that produce off-topic results / sites that are inappropriate for 
 academic usage and sites that may be used for academic work.  Rather than
-attempting a binary classification of sites into ``good'' and ``bad'', we rank sites
-based on the likelihood of them returning good results for APUSH searches. A CSE
-can then be configured to include just the top N sites or better, or to prefer
-sites that are ranked higher. 
+attempting a binary classification of sites into ``good'' and ``bad'', we wish
+to rank sites based on the likelihood of them returning good results for APUSH
+searches. A search engine can then be configured to include just the top N sites
+or better, or to prefer sites that are ranked higher. 
 
-\textcolor{red}{Links should be made here about topic-specific
-  PageRank. Essentially this is a course-specific quality score.}
+In order to automate the process of identifying these sites, we consider
+different methods of using the authoritative text provided by the textbook in an
+offline process. For simplicitly, we evaluate our ranking of sites using a
+classification framework---of the 1757 APUSH-related sites, we consider what
+portion of the 989 good sites are ranked above the 768 bad ones. The main
+intuition behind our algorithms is that by using the wealth of information
+provided by the textbook, we can drastically improve upon scoring that is based
+solely on a two or three word query. Thus, a reasonable baseline is to a consider
+a simple frequency-based approach in which we rank sites 
+in descending order of the frequency by which they show up for the synthetic
+queries described in the previous section. However, as we discuss in the experimental results
+section, this simple frequency-based approach does not improve significantly
+over a random baseline.
 
-The root of the problem is that a two or three word query does nt communicate
-the context in which the student is trying to use the search engine, i.e., the
-APUSH course.  When an off-topic site, such as Benjamin Franklin Plumbing, comes
-up for a history query, such as [benjamin franklin], the problem is that the
-query is inherently ambiguous and there is no way to communicate the context of
-the search (i.e., the APUSH course) to the search engine.  Our overall approach
-is to use this larger context in an offline process to construct the right
-collection of sites. 
+Thus, in order to use the information provided in the textbook more effectively,
+we develop two new algorithms for topic-specific site scoring. We begin with an
+approach that computes text similarity via TF-IDF weighted cosine distance in order to prefer sites
+that are more similar to the APUSH textbook. Next, we consider an approaching using
+structured data from a knowledge base to identify APUSH-related categories,
+entities and proper nouns. We augment both approaches using relevance feedback
+which we approximate with our hand-labeled sites. As discussed in the
+experimental results section, we find that both algorithms improve significantly
+over the frequency scoring baseline and when combined in a hybrid approach,
+deliver results that approach the quality of the hand-labeled corpus employed in
+our reference search engine. 
 
-We now describe a progression of algorithms that can be combined to improve on
-this baseline. We start with a classical information retrieval style analysis of
-the content of search results page and of the APUSH textbook. Sites that are
-more similar to the APUSH textbook are more likely to yield better search
-results. In the next step, we use a knowledge base of facts about the real world
-entities to improve the ranking obtained by just textual similarity. Finally, we
-present a relevance feedback based learning algorithm that improves the search
-engine based on user interaction with search results. 
-
-\subsection{Authoritative documents}
-
-\textcolor{red}{Instead of writing this section in terms of an explanation of
-  TF-IDF and vector space models which are classic methods, I would rephrase this
-  as an alternative way to compute a topic-specific quality score using an
-  authoritative reference which is a new idea.}
-
-\textcolor{blue}{I tried to, but I couldn't come up with a satisfactory way of
-  saying this. Could you please help me?} 
+\subsection{TF-IDF weighted text similarity}
 
 Classical information retrieval is based on the notion of similarity between two
 pieces of text, typically, the query and the web page.  In our case, we compute
 the similarity between the pages on a site and the APUSH textbook. Sites that
-are more similar to the APUSH textbook should  be more likely to return better
-results. 
+are more similar to the APUSH textbook should be more likely to return better
+results for searches in the APUSH context. 
 
 One of the most commonly used similarity measures is the cosine similarity
 metric based on the vector space model of documents \cite{salton1975vector}. In
-this model, each document is a vector in an N dimensional where each term in the
-corpus is a dimension. The coordinates of a document along the ith axis is given by by a
-product of the term's frequency in the document (TF) and the a measure of how
-significant that term is in the corpus. The later is usually measured by Inverse
-Document Frequency (IDF), which is the log of the inverse of the number of
-documents in the corpus that the term appears in. The similarity between two
-documents in this model is the cosine of the angle between the vectors between
-the two documents. 
+this model, each document is a vector in an $n$-dimensional space in which each
+term in the corpus is a dimension. Using the popular TF-IDF weighting, the
+magnitude of the document vector along the $i$th axis is given by by a product
+of the term's frequency in the document (TF) and the inverse document frequency
+(IDF)---the log of the inverse fraction of documents containing the term in the
+entire corpus. The cosine similarity between two documents in this space is
+given by the angle between the document vectors.
 
-Aiand Bi are the tf-idf for each term i in the corpus, for the two documents. We
-compute the similarity of a site to the APUSH textbook as follows. We retrieved
-the content of 110,121 of the 132,145 pages returned by Google as results for
-the queries that we used to create the reference search engine (many pages could
-not be retrieved either because the sites blocked our robot or because the site
-was down). After stripping the pages of all the HTML markup and javascript, we
-stem the words on each page (using the Porter Stemmer
-\cite{porter1980algorithm}) and extract the terms from (the pages from) each
-site along with their frequency of occurrence. We also stem all the terms in the
-APUSH textbook. We then compute a similarity score between each site and the
-APUSH textbook using the cosine similarity metric.
+In order to compute the similarity of a site to the APUSH textbook we first
+retrieve all pages from the site that are returned by Google for the queries
+used to create the reference search engine. After stripping the pages of HTML
+markup and javascript, we stem the words on each page (using the Porter Stemmer 
+\cite{porter1980algorithm}) and extract the terms from each along with their
+frequency of occurrence. We sum the document vectors across the entire site and
+compute the cosine similarity between the resulting site vector and that of
+the APUSH textbook.
 
-While textual similarity based metrics are very powerful for identifying
-off-topic sites, they are not capable of identifying sites that are on-topic,
-but likely inappropriate for academic purposes (such as answers.yahoo.com or
-ConfederateAmericanPride.com). These sites are indeed on-topic, but pure
-similarity based metrics cannot detect the bias. For this, we need some form of
-human judgement. We next describe a mechanism for getting this by analyzing the
-search engine's usage. 
-
-\subsection{Knowledge based approach}
+\subsection{Knowledge base approach}
 
 Most queries and web documents are about real world entities.  This realization
 has led many of the big search engines to build various kinds of knowledge
@@ -436,6 +420,22 @@ particular query.
 
 \subsection{Relevance feedback}
 
+\begin{figure*}[t!]
+\includegraphics[width=3.45in]{expt}
+\includegraphics[width=3.45in]{expt_relevance}
+\caption{Comparison of algorithms}
+\label{fig-expt}
+\end{figure*}
+
+
+While textual similarity based metrics are very powerful for identifying
+off-topic sites, they are not capable of identifying sites that are on-topic,
+but likely inappropriate for academic purposes (such as answers.yahoo.com or
+ConfederateAmericanPride.com). These sites are indeed on-topic, but pure
+similarity based metrics cannot detect the bias. For this, we need some form of
+human judgement. We next describe a mechanism for getting this by analyzing the
+search engine's usage. 
+
 Using relevance feedback to improve the performance of systems is an established
 technique \cite{salton1997improving}. As the search engine gets used, we can
 interpret clicks from the user as feedback. For example, if users repeatedly
@@ -480,13 +480,6 @@ before, we propagate the category scores to the sites.
 
 \section{Experimental results}
 
-\begin{figure*}
-\includegraphics[width=3.45in]{expt}
-\includegraphics[width=3.45in]{expt_relevance}
-\caption{Comparison of algorithms}
-\label{fig-expt}
-\end{figure*}
-
 Of the 1453 sites we examined as part of the manual curation, 582 were good, 871
 tended to give off-topic or inappropriate (i.e., bad) results. So, randomly
 picking sites for inclusion into the search engine will lead to 40.05\% of the
@@ -521,27 +514,43 @@ results from this hybrid approach. As can be seen, there is a very small
 improvement over just the similarity score. We believe that there is room for
 improvement here and this is one of the directions of future work. 
 
-\bibliographystyle{plain}
+\bibliographystyle{abbrv}
 \bibliography{apush_cse}
 
 \appendix
-\section{Side-by-side queries}
+\section{Side-by-side evaluation queries}
 \label{app-queries}
+
+In Table \ref{tab-queries} we list the queries used in our blind side-by-side
+evaluation between the APUSH search engine and Google.
+
+
 \begin{table}
 \begin{center}
 \begin{tabular}{|l|} \hline
-Whigs in Congress \\
-President Harrison \\
-President Monroe \\
-James Monroe \\
-President Johnson \\
-Thomas Jefferson \\
-President Adams \\
-Second Bank \\
 Andrew Jackson \\
-President Van Buren \\
+Battle of Saratoga \\
+american strategies during world war 2 \\
+andrew johnson reconstruction \\
+battle of vicksburg \\
+bay colony \\
+british involvement civil war \\
+carpetbaggers \\
+causes of the civil war \\
+great awakening \\
+industrial revolution \\
+king cotton \\
+marne \\
+mclellan \\
+republicans reconstruction \\
+sectionalism and slavery \\
+tea party \\
+uss chesapeake \\
+war of 1812 \\
+women's rights world war 2 \\
 \hline\end{tabular}
-\caption{Side-by-side queries}
+\caption{Side-by-side evaluation queries}
+\label{tab-queries}
 \end{center}
 \end{table}
 
