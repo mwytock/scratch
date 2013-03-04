@@ -43,29 +43,28 @@ of information for students. This is especially the case for high school
 subjects such as history, which often have projects that require the student to 
 perform independent research. Unfortunately, students encounter difficulties
 with mainstream keyword-based search engines (such as Bing or Google); 
-consider several examples of queries that might arise in the context of a course
+consider two examples of queries that might arise in the context of a course
 on US History: the query [boston tea party] brings up the home page for the
 Boston chapter for the political organization called the ``Tea Party'' and the
 query [benjamin franklin] brings up pages about Benjamin Franklin
 Plumbing. These queries also bring up pages that are targeted at elementary
 school students and user-generated content such as Yahoo Answers, which are not
-considered good reference material by most teachers. In addition, queries
-about places such as [gold country] are even more problematic, bringing up
-results related to tourism, classifieds, etc.  
+considered good reference material by most teachers.
 
 Traditional methods in information retrieval rely on term-based scoring between
 the query and the document via the vector space model \cite{salton1975vector} or
 more sophisticated Ngram models to ensure on-topic results. However, for many
-reasonable queries such methods are fundamentally limited in the academic
-research context. We group problems that arise into three categories:
+reasonable queries in the academic research context, such methods are
+fundamentally limited. We group problems that arise into three categories:
 
 {\bf Off-topic results}. Often, many of the results are off-topic in the
 research context. For example, [benjamin franklin] brings up results about a
 plumbing service with that name and [gold rush] brings up pages related to Gold
-Country tourism, etc. The problem is especially severe with queries involving
-names of places, which bring up results about local services, real estate
-offerings, etc. Since students are learning the topic by conducting exploratory
-searches, they cannot be expected to frame the best query which exacerbates the problem.
+Country tourism. The problem is especially severe with queries involving
+names of places, which bring up results about restaurants, real estate
+offerings, and other local services. Since students are learning the topic by
+conducting exploratory searches, they cannot be expected to frame the best query
+which exacerbates the problem. 
 
 {\bf Inappropriate sources}. Web search results often include a number of sources
 that do not meet the standard for research material in an academic course. Some
@@ -95,8 +94,10 @@ provide the best possible results for a particular student in a specific
 educational context. 
 
 Our solution is to construct a specialized search engine for every academic
-course. We use a popular high school course, AP US History (APUSH), as
-our target and show how we can construct a search engine that captures the
+course. We use a popular high school course, AP US History (APUSH)---taken by
+over 400,000 students in 2011 \cite{wikipedia}, as 
+our target educational context and show how we can construct a search engine
+that captures the 
 richness of the web while avoiding some of the problems associated with generic
 search engines. In order to run the search engine, we use the Google Custom
 search engine platform  (\url{http://google.com/cse}) which allows us to
@@ -112,8 +113,8 @@ blind side-by-side evaluation by domain experts (APUSH teachers), this search
 engine is overwhelmingly preferred to Google. However, manually curating
 thousands of sites is a time-consuiming process and thus we develop two
 automated algorithms. In order to do so, we make the assumption there exists a
-textbook or other authoritative source which describes the course content.
-We describe two algorithms using this content: one using textual similarity and
+textbook, or other authoritative source, which describes the course content.
+We propose two algorithms that utilize this source: one using textual similarity and
 another using structured data from knowledge bases. Our experimental results
 indicate that these algorithms significantly reduce the amount of manual work
 required to create a course-specific search engine.
@@ -144,45 +145,31 @@ show how search results can be augmented with snippets from a knowledge base.
 
 \section{Reference search engine}
 
-Our ultimate goal is to create a system, which, given a course textbook will
-produce a search engine that is appropriate for that course. In this work, we
-use [9?], which is available in PDF form, to create a search engine for the AP US
-History course, which was taken by over 400,000 students in 2011 \cite{wikipedia}. 
+In order to evaluate the relative performance of a search engine for the AP US
+History course, we first create a reference search engine based on a standard textbook
+\cite{textbook}, which is available in PDF form. As described above,
+we use the Google CSE platform which allows us to specify the corpus for our a
+search engine as a set of url patterns.
 
-Building and running a search engine requires a substantial investment in
-engineering and infrastructure. Fortunately, Google offers the custom search
-engine (CSE) platform, which allows us to create customized search engines at a
-small fraction of the cost of building a search engine from scratch. With a CSE,
-we specify a subset of the web as a set of URL patterns and get a search engine
-that searches only over pages that match one of these patterns. We rely on CSE
-for the crawling, indexing and serving search results. Our focus is on
-identifying the subset of the web that should be included in an APUSH specific
-search corpus. 
-
-In order to evaluate the relative performance of a search engine with a course
-specific corpus versus one that searched the whole web, and to create a baseline
-against with we could measure the automated identification of the course
-specific corpus, we first create a reference search engine. 
-
-If we knew all the queries that students will issue (in the APUSH context), a
+If we knew all the queries that students will issue in the APUSH context, a
 brute force approach would be to go through the search results returned by
 Google and manually pick the good results. Clearly, this is not possible both
-because we don't have all the queries and because of the magnitude of manual
+because the queries are not known apriori and because of the magnitude of manual
 work that would be required. We therefore approximate this by computing likely
-queries from the textbook and then, by doing the curation at the site level (as
-opposed to the page level). We then put this curated list of sites into a CSE to
-create our reference search engine for APUSH. 
+queries from the textbook and then, by doing the curation at the site level as
+opposed to the page level. This curated set of sites will then form the corpus
+of our reference search engine.
 
 Most history related queries include one or more proper nouns (people, events,
-places, etc.). We used the digital version of the textbook [9?] to extract all
-the proper nouns, using simple syntactic cues such as capitalization and
-punctuation. We were able to identify 1206 distinct proper nouns, occurring a
-total of 11241 times in the text. We then form queries out of tuples of
-proximately occurring proper nouns and retrieve the top ten results from
-Google. The 132,145 results for these queries come from 23393 sites. There are
+places, etc.). Thus, we use the digital version of the textbook \cite{textbook}
+to extract all the proper nouns, using simple syntactic cues such as
+capitalization and punctuation. This method identifies 1206 distinct proper
+nouns, occurring a total of 11241 times in the text. We then form queries out of
+tuples of proximately occurring proper nouns and retrieve the top ten results
+from Google. The 132,145 results for these queries come from 23393 sites. There are
 1757 sites which appear in at least 10 results and these account for 70.2\% of
 all results. We manually examined each of these sites to put them into two
-buckets --- those that were bad (either off-topic (e.g., trulia.com, yelp.com)
+buckets: those that were bad (either off-topic (e.g., trulia.com, yelp.com)
 or not appropriate for academic work (e.g., answers.yahoo.com, wikianswers.com))
 and those that were good. 768 were off-topic or not appropriate, leaving us with
 989 good sites. So, if we were to randomly select sites, only 56\% of the
@@ -196,31 +183,30 @@ selected sites will be good.
 
 We created a custom search engine using the good sites (available at
 \url{http://guha.com/apushcse.html}). In order to evaluate this search engine,
-we collected a set of 20 queries \textcolor{red}{Good to include queries in an
-  appendix} and asked a set of 4 history teachers to
-compare results from Google versus results from the custom search in a blind
-side-by-side test setup. They were asked to assign one of the following ratings
-to each side-by-side---side A/B is better, side A/B are about the same. As can
-be seen in Figure \ref{fig-eval}, the course-specific custom search engine is
-substantially preferred.
+we collected a set of 20 queries (included in Appendix \ref{app-queries}) and
+asked a set of 4 history teachers to compare results from Google versus results
+from the custom search in a blind side-by-side test setup. They were asked to
+assign one of the following ratings to each side-by-side: side A/B is better,
+side A/B are about the same. As can be seen in Figure \ref{fig-eval}, the
+course-specific custom search engine is substantially preferred.
 
 \section{Methods for automation}
 
 Our long term goal is to be able to create a course-specific search engine from
-the course textbook. The reference search engine described above involved manual
-curation of thousands of sites, a process that is very time consuming and
-expensive. Our goal is to automatically distinguish between sites that produce
-off-topic results / sites that are inappropriate for academic usage and sites
-that may be used for academic work.  Rather than attempting a binary
-classification of sites into Good and Bad, we rank sites based on the likelihood
-of them returning good results for APUSH searches. A CSE can then be configured
-to include just the top N sites or better, or to prefer sites that are ranked
-higher. 
+the course textbook with minimal manual supervision. The reference search engine
+described above involved manual curation of thousands of sites, a process that
+is very time-consuming and expensive. Our goal is to automatically distinguish
+between sites that produce off-topic results / sites that are inappropriate for
+academic usage and sites that may be used for academic work.  Rather than
+attempting a binary classification of sites into ``good'' and ``bad'', we rank sites
+based on the likelihood of them returning good results for APUSH searches. A CSE
+can then be configured to include just the top N sites or better, or to prefer
+sites that are ranked higher. 
 
 \textcolor{red}{Links should be made here about topic-specific
   PageRank. Essentially this is a course-specific quality score.}
 
-The root of the problem is that a two or three word query does not communicate
+The root of the problem is that a two or three word query does nt communicate
 the context in which the student is trying to use the search engine, i.e., the
 APUSH course.  When an off-topic site, such as Benjamin Franklin Plumbing, comes
 up for a history query, such as [benjamin franklin], the problem is that the
@@ -537,5 +523,27 @@ improvement here and this is one of the directions of future work.
 
 \bibliographystyle{plain}
 \bibliography{apush_cse}
+
+\appendix
+\section{Side-by-side queries}
+\label{app-queries}
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|} \hline
+Whigs in Congress \\
+President Harrison \\
+President Monroe \\
+James Monroe \\
+President Johnson \\
+Thomas Jefferson \\
+President Adams \\
+Second Bank \\
+Andrew Jackson \\
+President Van Buren \\
+\hline\end{tabular}
+\caption{Side-by-side queries}
+\end{center}
+\end{table}
+
 
 \end{document}
