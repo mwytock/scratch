@@ -22,7 +22,7 @@
 \maketitle
 \begin{abstract}
 Web search is an important research tool for many high school courses. However,
-generic keyword search engines have a number of problems that arise out of them
+generic keyword search engines have a number of problems that arise out of
 not understanding the context of search (the high school course),
 leading to results that are off-topic or inappropriate as reference material. In
 this paper, we introduce the concept of a course-specific search 
@@ -31,121 +31,116 @@ History; the results of which are evaluated by subject matter experts (high
 school teachers) and judged to be overwhelmingly superior to existing search engines. We
 then develop two algorithms for identifying high quality documents: one 
 based on textual similarity to an authoritative source and another using structured
-data from knowledge bases. Initial performance measurements indicate that
-algorithms can be used to automate the creation of course-specific search
+data from knowledge bases. Initial experimental results indicate that
+these algorithms can be used to automate the creation of course-specific search
 engines with minimal manual supervision.
 \end{abstract}
 
 \section{Introduction}
 
 Over the last decade, the World Wide Web has become one of the primary sources
-of information for students. This is especially the case in high school for
-subjects such as history, which often have projects that require the student to
-perform independent research. Students typically use a search engine (such as
-Bing, Google or Yahoo!) to find pages relevant to their project. Unfortunately,
-students encounter certain difficulties with these keyword based search engines.
-Consider several examples of queries that might arise in the context of a course
-on US History. The query [boston tea party] brings up the home page for the
-Boston chapter for the political organization called the ``Tea Party''. The
-query [benjamin franklin] brings up pages about Benjamin Franklin Plumbing. They
-also bring up pages that are targeted at elementary school students and pages
-from user generated sources such as Yahoo Answers  (which are not considered
-good reference material by most teachers). Queries about places such as [gold
-  country] are even more problematic, bringing up results related to tourism,
-classifieds, etc.  
+of information for students. This is especially the case for high school
+subjects such as history, which often have projects that require the student to 
+perform independent research. Unfortunately, students encounter difficulties
+with mainstream keyword-based search engines (such as Bing or Google); 
+consider several examples of queries that might arise in the context of a course
+on US History: the query [boston tea party] brings up the home page for the
+Boston chapter for the political organization called the ``Tea Party'' and the
+query [benjamin franklin] brings up pages about Benjamin Franklin
+Plumbing. These queries also bring up pages that are targeted at elementary
+school students and user-generated content such as Yahoo Answers, which are not
+considered good reference material by most teachers. In addition, queries
+about places such as [gold country] are even more problematic, bringing up
+results related to tourism, classifieds, etc.  
 
-Generic search engines have a number of problems with searches that are done as
-part of research on an assignment or project for an academic course. There are
-three broad categories of problems, in decreasing order of severity. 
+Traditional methods in information retrieval rely on term-based scoring between
+the query and the document via the vector space model \cite{salton1975vector} or
+more sophisticated Ngram models to ensure on-topic results. However, for many
+reasonable queries such methods are fundamentally limited in the academic
+research context. We group problems that arise into three categories:
 
-{\bf Off-Topic Results}. Often, many of the results are off topic. For example,
-[benjamin franklin] brings up results about a plumbing service with that name,
-[gold rush] brings up pages related to Gold country tourism, etc. The problem is
-especially severe with queries involving names of places, which bring up results
-about local services, real estate offerings, etc. Since students are still
-learning the topic and are often conducting exploratory searches and don't know
-exactly what they are looking for, they can't be expected to frame the best
-query. 
+{\bf Off-topic results}. Often, many of the results are off-topic in the
+research context. For example, [benjamin franklin] brings up results about a
+plumbing service with that name and [gold rush] brings up pages related to Gold
+Country tourism, etc. The problem is especially severe with queries involving
+names of places, which bring up results about local services, real estate
+offerings, etc. Since students are learning the topic by conducting exploratory
+searches, they cannot be expected to frame the best query which exacerbates the problem.
 
-{\bf Inappropriate sites}. Teachers have an expectation of research material
-coming from reference sources. Web search results often include a number of
-sites that don't meet this bar. Some of the different types of sites that are
-not appropriate include user generated sites (such as forums and Yahoo answers),
-high school sites with essays from other high schoolers, and biased sites (e.g.,
+{\bf Inappropriate sources}. Web search results often include a number of sources
+that do not meet the standard for research material in an academic course. Some
+egregious examples include user-generated content (such as forums and Yahoo answers), 
+sites offering essays from other students, and biased sites (such as
 ConfederateAmericanPride.com). Unfortunately, these results are interspersed
-with results from much more reputable sites. The student is left to sort through
-all the results. Unlike off-topic results which are mostly just a nuisance,
-these kind of results can often lead the student astray. 
+with those from reputable sites leaving the student to sift through result
+set. Unlike off-topic results which are mostly just a nuisance, these results
+often lead the student astray.   
 
-{\bf Wrong level}. Some of the pages returned are on topic and from reputable
-sites, but are targeted at the wrong level. For example, [thomas jefferson]
+{\bf Wrong level}. Even search results that are on-topic from reputable
+a site may be targeted at the wrong level. For example, [thomas jefferson]
 returns a page from the children's version of the Library of Congress
-website. More detailed queries often return papers from graduate level work. 
+website while  more detailed queries often return papers from graduate level
+work. Typically web pages are not explicitly labeled with the level of
+the intended audience making it difficult to formulate an query that returns
+appropriate results.
 
-\textcolor{red}{Next part should talk about existing solutions, query refinement as
-  well as existing academic work on topic-specific search engines. The analysis
-  and discussion of existing work should probably be expanded slightly. Make
-  sure to contrast specifically prior work to this approach.}
+In practice, the user must compensate for these search engine deficiencies by
+constructing more specific queries. Unfortunately, this both requires an
+intimate knowledge of the subject, which by definition the student does not yet
+have, and often eliminates potentially good results. The root of the problem is
+that a two or three word query does not communicate the context in which the
+student is trying to use the search engine. Thus, the general purpose
+search engine must have appropriate results for all users and cannot
+provide the best possible results for a particular student in a specific
+educational context. 
 
+Our solution is to construct a specialized search engine for every academic
+course. We use a popular high school course, AP US History (APUSH), as
+our target and show how we can construct a search engine that captures the
+richness of the web while avoiding some of the problems associated with generic
+search engines. In order to run the search engine, we use the Google Custom
+search engine platform  (\url{http://google.com/cse}) which allows us to
+restrict the corpus of our search engine to a set of url patterns or sites. The
+CSE platform takes care of the cumbersome tasks of crawling the web, building an
+index and running the search engine. This has allowed us to not only build a
+search engine for APUSH, but to also make it widely available to students taking
+the course.     
 
-\textcolor{blue}{I couldn't find work that did something just like this. If you
-  had thoughts could you add it here?} 
+We first demonstrate the utility of this course-specific search engine by creating
+a reference search engine with a manually curated set of sites. In a
+blind side-by-side evaluation by domain experts (APUSH teachers), this search
+engine is overwhelmingly preferred to Google. However, manually curating
+thousands of sites is a time-consuiming process and thus we develop two
+automated algorithms. In order to do so, we make the assumption there exists a
+textbook or other authoritative source which describes the course content.
+We describe two algorithms using this content: one using textual similarity and
+another using structured data from knowledge bases. Our experimental results
+indicate that these algorithms significantly reduce the amount of manual work
+required to create a course-specific search engine.
 
-The typical solution to these problems is to construct more specific
-queries. Unfortunately, this both requires an intimate knowledge of the subject,
-which by definition the student does not yet have, and often eliminates
-potentially good results. 
+\subsection{Related work}
 
-Though there is substantial work in the area of topic specific ranking in
-search, much of it is focused around exploiting the link structure of the web
-to identify clusters of documents that are on the same topic. This structure
-can be exploited to create topic specific Page Rank \cite{haveliwala2003topic}
-for influencing ranking or to influence the order in which pages should be
-crawled \cite{hsu2006topic,buntine2004scalable}. More recent work
-\cite{bar2009topic} looks into topical analysis of query logs.  
+There has been substantial work in the area of topic-specific ranking focused
+around exploiting the link structure of the web to identify clusters of
+documents that are on the same topic. For example, this structure can be
+exploited to create a topic-specific Page Rank for influencing ranking
+\cite{haveliwala2003topic, hsu2006topic} or to influence the order in which
+pages should be crawled \cite{buntine2004scalable}. In contrast, our work uses the
+text content of an authoritative source (the course textbook) to define
+topic-specific ranking algorithms.
 
- There has been very little work on the use of knowledge bases to influence the
- results shown in search. \cite{jiang2009learning} explores using ontologies for characterizing the 
-user. \cite{guha2003semantic} and subsequent papers show how search results can
-be augmented with snippets from a knowledge base.  
+Focusing on the domain of search engines for the educational context, the most
+closely related systems are those of PubMed, Web of Science and Google
+Scholar, which search specialized corpora of scientific research
+\cite{jacso2005google}. Unlike these systems which include only
+peer-reviewed scientific articles, our course-specific search engines
+endeavor to include all of the useful educational material that can be found on
+the web. 
 
-There has also been very little work on creating specialized search
-engines for educational purposes. The most closely related systems are systems
-like PubMed, Web of Science and Google Scholar, which are specialized 
-corpura around scientific research. A description and comparison of 
-these is at \cite{jacso2005google}.   
-
-\textcolor{red}{Should revise the next two paragraphs to be more of a summary of
-the next 3 sections so reader knows what to expect. Key points: course-specific
-search engine for APUSH which has good results. Main ideas for two algorithms
-and mention summary of the quantitative evaluation}.
-
-Our solution is to construct a specialized search engine for
-educational contexts. More specifically, we are interested in constructing a
-search engine for each high school course. In this paper, we use a popular high
-school course (AP US History) as our target and show how we can construct a web
-search engine, that is specific to this course, that captures the richness of
-the web while avoiding some of the problems associated with general purpose
-search engines. We use the Google Custom search engine (CSE) platform
-(\url{http://google.com/cse}) to run the search engine. With a CSE, we
-specify a corpus via a set of url patterns or sites and get back a search engine
-that searches only over this corpus. The CSE platform takes care of the
-cumbersome tasks of crawling the web, building an index and running a search
-engine. This has allowed us to not only build a search engine for AP US History
-(APUSH), but to also make it widely available to students taking the course. 
-
-The outline of the rest of the paper is as follows. We first analyze some of the
-common problems encountered during searches done in the context of high school
-courses such as APUSH. We then describe how we constructed and evaluated a
-reference search engine for APUSH by harvesting a set of sites from Google
-search and then manually curating it. While the search engine thus created is
-very useful, the manual curation of thousands of sites does make it
-expensive. This motivates the our algorithms for automating the construction of
-course-specific corpora. We describe two algorithms, one which
-utilizes the textbook as an authoratative reference and the other
-which utilizes knowledge bases to identify APUSH related topics. We also outline
-how we evaluate algorithms based on the fraction of good sites they capture when
-looking at the top n sites.
+We are aware of very little work on the use of knowledge bases to influence the
+results shown in search. Some exceptions are \cite{jiang2009learning}, which explores
+using ontologies for characterizing the user and \cite{guha2003semantic} which
+show how search results can be augmented with snippets from a knowledge base.   
 
 \section{Reference search engine}
 
