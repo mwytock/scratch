@@ -1,4 +1,4 @@
-\documentclass{acm_proc_article-sp}
+\documentclass[pdfpagelabels=false,plainpages=true]{acm_proc_article-sp}
 
 \usepackage{color}
 \usepackage{hyperref}
@@ -8,11 +8,15 @@
 \title{Course-specific search engines: Semi-automated methods for identifying
   high quality topic-specific corpora} 
 
-\numberofauthors{1}
+\numberofauthors{2}
 \author{
   \alignauthor
   Neel Guha \\
   \email{neelguha@gmail.com}
+  \alignauthor
+  Matt Wytock \\
+  Google, USA
+  \email{mwytock@google.com}
 }
 
 \maketitle
@@ -37,24 +41,18 @@ engines with minimal manual supervision.
 Over the last decade, the World Wide Web has become one of the primary sources
 of information for students. This is especially the case in high school for
 subjects such as history, which often have projects that require the student to
-perform independent research. 
-
-\textcolor{red}{Spliced together description of problems from two sections. Should be
-  merged to flow with paragraph above, remove any redundancy, etc. Probably fine
-  to launch directly into the expanded description of the three types of
-  problems---easy to process this way.}
-
-Students typically use a search engine (such as Bing, Google or Yahoo!) to find
-pages relevant to their project. Unfortunately, students encounter certain
-difficulties with these keyword based search engines.  Consider several examples
-of queries that might arise in the context of a course on US History. The query
-[boston tea party] brings up the home page for the Boston chapter for the
-political organization called the ``Tea Party''. The query [benjamin franklin]
-brings up pages about Benjamin Franklin Plumbing. They also bring up pages that
-are targeted at elementary school students and pages from user generated sources
-such as Yahoo Answers  (which are not considered good reference material by most
-teachers). Queries about places such as [gold country] are even more
-problematic, bringing up results related to tourism, classifieds, etc. 
+perform independent research. Students typically use a search engine (such as
+Bing, Google or Yahoo!) to find pages relevant to their project. Unfortunately,
+students encounter certain difficulties with these keyword based search engines.
+Consider several examples of queries that might arise in the context of a course
+on US History. The query [boston tea party] brings up the home page for the
+Boston chapter for the political organization called the ``Tea Party''. The
+query [benjamin franklin] brings up pages about Benjamin Franklin Plumbing. They
+also bring up pages that are targeted at elementary school students and pages
+from user generated sources such as Yahoo Answers  (which are not considered
+good reference material by most teachers). Queries about places such as [gold
+  country] are even more problematic, bringing up results related to tourism,
+classifieds, etc.  
 
 Generic search engines have a number of problems with searches that are done as
 part of research on an assignment or project for an academic course. There are
@@ -73,7 +71,7 @@ query.
 coming from reference sources. Web search results often include a number of
 sites that don't meet this bar. Some of the different types of sites that are
 not appropriate include user generated sites (such as forums and Yahoo answers),
-high school sites with essays from other high schoolers, biased sites (e.g.,
+high school sites with essays from other high schoolers, and biased sites (e.g.,
 ConfederateAmericanPride.com). Unfortunately, these results are interspersed
 with results from much more reputable sites. The student is left to sort through
 all the results. Unlike off-topic results which are mostly just a nuisance,
@@ -89,13 +87,17 @@ website. More detailed queries often return papers from graduate level work.
   and discussion of existing work should probably be expanded slightly. Make
   sure to contrast specifically prior work to this approach.}
 
+
+\textcolor{blue}{I couldn't find work that did something just like this. If you
+  had thoughts could you add it here?} 
+
 The typical solution to these problems is to construct more specific
 queries. Unfortunately, this both requires an intimate knowledge of the subject,
 which by definition the student does not yet have, and often eliminates
 potentially good results. 
 
 Though there is substantial work in the area of topic specific ranking in
-search, much of it is focussed around exploiting the link structure of the web
+search, much of it is focused around exploiting the link structure of the web
 to identify clusters of documents that are on the same topic. This structure
 can be exploited to create topic specific Page Rank \cite{haveliwala2003topic}
 for influencing ranking or to influence the order in which pages should be
@@ -139,7 +141,11 @@ reference search engine for APUSH by harvesting a set of sites from Google
 search and then manually curating it. While the search engine thus created is
 very useful, the manual curation of thousands of sites does make it
 expensive. This motivates the our algorithms for automating the construction of
-course-specific corpora. 
+course-specific corpora. We describe two algorithms, one which
+utilizes the textbook as an authoratative reference and the other
+which utilizes knowledge bases to identify APUSH related topics. We also outline
+how we evaluate algorithms based on the fraction of good sites they capture when
+looking at the top n sites.
 
 \section{Reference search engine}
 
@@ -150,7 +156,7 @@ History course, which was taken by over 400,000 students in 2011 \cite{wikipedia
 
 Building and running a search engine requires a substantial investment in
 engineering and infrastructure. Fortunately, Google offers the custom search
-engine platform (CSE), which allows us to create customized search engines at a
+engine (CSE) platform, which allows us to create customized search engines at a
 small fraction of the cost of building a search engine from scratch. With a CSE,
 we specify a subset of the web as a set of URL patterns and get a search engine
 that searches only over pages that match one of these patterns. We rely on CSE
@@ -213,7 +219,7 @@ off-topic results / sites that are inappropriate for academic usage and sites
 that may be used for academic work.  Rather than attempting a binary
 classification of sites into Good and Bad, we rank sites based on the likelihood
 of them returning good results for APUSH searches. A CSE can then be configured
-to include just the top N sites or better, to prefer sites that are ranked
+to include just the top N sites or better, or to prefer sites that are ranked
 higher. 
 
 \textcolor{red}{Links should be made here about topic-specific
@@ -221,8 +227,8 @@ higher.
 
 The root of the problem is that a two or three word query does not communicate
 the context in which the student is trying to use the search engine, i.e., the
-APUSH course.  When an off-topic site (such as Benjamin Franklin Plumbing) comes
-up for a history query (such as [benjamin franklin]), the problem is that the
+APUSH course.  When an off-topic site, such as Benjamin Franklin Plumbing, comes
+up for a history query, such as [benjamin franklin], the problem is that the
 query is inherently ambiguous and there is no way to communicate the context of
 the search (i.e., the APUSH course) to the search engine.  Our overall approach
 is to use this larger context in an offline process to construct the right
@@ -244,8 +250,10 @@ engine based on user interaction with search results.
   as an alternative way to compute a topic-specific quality score using an
   authoritative reference which is a new idea.}
 
-Classical information retrieval (IR), one of the primary mechanisms used by
-search engines such as Google, is based on the notion of similarity between two
+\textcolor{blue}{I tried to, but I couldn't come up with a satisfactory way of
+  saying this. Could you please help me?} 
+
+Classical information retrieval is based on the notion of similarity between two
 pieces of text, typically, the query and the web page.  In our case, we compute
 the similarity between the pages on a site and the APUSH textbook. Sites that
 are more similar to the APUSH textbook should  be more likely to return better
@@ -285,7 +293,7 @@ search engine's usage.
 \subsection{Knowledge based approach}
 
 Most queries and web documents are about real world entities.  This realization
-has lead many of the big search engines to build various kinds of knowledge
+has led many of the big search engines to build various kinds of knowledge
 bases to augment their search results \textcolor{red}{Nice to cite blog post
   here}. There has also been a lot of work in the area of the semantic web
 and linked data \cite{berners2001semantic,bizer2008linked} which aim to build a
@@ -326,9 +334,9 @@ proper noun P, we issue the query [P site:wikipedia.org]. Each of the search
 urls has the form http://en.wikipedia.org/wiki/<entity-id>. The first three entities
 for each query are used as candidate entities for the corresponding proper
 noun. Each entity may have a number of categories associated with it. For
-example, the entity (whose unique identifier is) Abraham\_Lincoln has 29
-different categories associated with it (e.g., American\_Presidents,
-Illinois\_Lawyers, Assasinated\_HeadsOfState, etc.). This mapping is done using
+example, the entity whose unique identifier is Abraham\_Lincoln has 29
+different categories associated with it: American\_Presidents,
+Illinois\_Lawyers, Assasinated\_HeadsOfState, etc. This mapping is done using
 the RDF dumps from DBPedia. 
 
 The next step is to assign a score to each category. The score is a measure of
@@ -390,9 +398,8 @@ Russia \\
 \end{center}
 \end{table}
 
-Table \ref{tab-categories} gives some of the top-rated
-categories for APUSH, i.e., the categories that are considered most relevant to
-APUSH. As can be seen, of the hundreds of thousands of categories in
+Table \ref{tab-categories} gives some of the the categories that are considered
+most relevant to APUSH. As can be seen, of the hundreds of thousands of categories in
 DBPedia (which includes categories for rock stars, planets, etc.), the
 ones that come up are indeed very apropos to US History.           
 We then score each entity by summing the scores for the categories that it is
@@ -422,7 +429,7 @@ President Van Buren \\
 Next, we score each proper term by adding the scores of all the entities that it
 could refer to. So, since ``Abraham Lincoln'' could refer to the president or the
 movie with that name, each entity contributes a score. Table \ref{tab-terms}
-gives some of the top rated proper terms. Again, as can be seen, of the millions
+gives some of the top-rated proper terms. Again, as can be seen, of the millions
 of entries in DBPedia, the ones chosen are indeed very highly apropos to the
 APUSH context.  
 
@@ -432,6 +439,13 @@ which they produced results. The score for the site is the average of the query
 scores. This gives us a ranking of sites by the likelihood of them being a good
 candidate for inclusion into the APUSH search engine. 
 
+This approach reduces the probability of off-topic results occuring
+for our query. By utilizing a topicality based scoring approach, it
+eliminates results for non-APUSH interpretations of a
+particular query.
+
+
+\textcolor{blue}{Does the paragraph above communicate this?}
 
 \textcolor{red}{We should tie this approach (and the topicality scoring
   approach) directly to the the 3 problems laid out in the introduction:
@@ -452,7 +466,9 @@ judgement about the appropriateness of that site for APUSH.
   relevance feedback. It would be best to use the equation environment to make
   it easy to parse. }
 
-Evaluating relevance feedback based algorithms requires large amounts of usage
+\textcolor{blue}{Isn't this described below?}
+
+Evaluating relevance feedback algorithms requires large amounts of usage
 data, which we don't have. So, we instead reused some of the manually curated
 sites to evaluate the utility of relevance feedback in our context. Of the sites
 that had been manually curated, we randomly selected 50 good sites and 50 bad
@@ -483,6 +499,13 @@ before, we propagate the category scores to the sites.
 
 \section{Experimental results}
 
+\begin{figure*}
+\includegraphics[width=3.45in]{expt}
+\includegraphics[width=3.45in]{expt_relevance}
+\caption{Comparison of algorithms}
+\label{fig-expt}
+\end{figure*}
+
 Of the 1453 sites we examined as part of the manual curation, 582 were good, 871
 tended to give off-topic or inappropriate (i.e., bad) results. So, randomly
 picking sites for inclusion into the search engine will lead to 40.05\% of the
@@ -496,16 +519,14 @@ algorithm would rank each of the 989 good sites above the bad sites. Therefore,
 a good metric for evaluating an algorithm is the number of good sites included
 in the top 100, 200, 300, 400 and 500 sites picked by the algorithm. 
 
+We also created a baseline from simple frequency-based scoring, where
+sites are ranked based on their frequency. As visible in Figure XXX, this demonstrates that the
+most commonly occuring sites for any query are not necessarily good. 
+
 \textcolor{red}{More details of experimental methodology here and discussion
   of results from previous sections and put here. Also include the description
   of the simple frequency-based scoring approach here as this is really a baseline
   not a proposed method. Include graph.}  
-
-\begin{figure}
-\includegraphics{expt}
-\caption{Comparison of algorithms to random baseline}
-\label{fig-expt}
-\end{figure}
 
 \subsection{Relevance feedback and hybrid scoring}
 
@@ -518,12 +539,6 @@ adding the similarity score and the knowledge based score. Table 8 gives the
 results from this hybrid approach. As can be seen, there is a very small
 improvement over just the similarity score. We believe that there is room for
 improvement here and this is one of the directions of future work. 
-
-\begin{figure}
-\includegraphics{expt_relevance}
-\caption{Improvement with relevance feedback and hybrid scoring}
-\label{fig-expt-relevance}
-\end{figure}
 
 \bibliographystyle{plain}
 \bibliography{apush_cse}
