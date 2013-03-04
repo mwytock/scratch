@@ -22,18 +22,20 @@
 \maketitle
 \begin{abstract}
 Web search is an important research tool for many high school courses. However,
-generic keyword search engines have a number of problems that arise out of
+generic search engines have a number of problems that arise out of
 not understanding the context of search (the high school course),
 leading to results that are off-topic or inappropriate as reference material. In
 this paper, we introduce the concept of a course-specific search 
-engine and build such a search engine for the Advanced Placement course on US
-History; the results of which are evaluated by subject matter experts (high
-school teachers) and judged to be overwhelmingly superior to existing search engines. We
-then develop two algorithms for identifying high quality documents: one 
-based on textual similarity to an authoritative source and another using structured
+engine and build such a search engine for the Advanced Placement US
+History course; the results of which are evaluated by subject matter experts (high
+school teachers) and judged to be overwhelmingly superior to existing search
+engines. Since manually curating thousands of sites is expensive, we describe two
+algorithms for building course-specific corpora using an authoritative source
+such as the textbook: one  
+based on textual similarity and another using structured
 data from knowledge bases. Initial experimental results indicate that
-these algorithms can be used to automate the creation of course-specific search
-engines with minimal manual supervision.
+these algorithms are able to recover a hand-labeled set of high quality
+documents and thus can be used to create high quality topic-specific corpora.
 \end{abstract}
 
 \section{Introduction}
@@ -44,18 +46,18 @@ subjects such as history, which often have projects that require the student to
 perform independent research. Unfortunately, students encounter difficulties
 with mainstream keyword-based search engines (such as Bing or Google); 
 consider two examples of queries that might arise in the context of a course
-on US History: the query [boston tea party] brings up the home page for the
+on US history: the query [boston tea party] brings up the home page for the
 Boston chapter for the political organization called the ``Tea Party'' and the
 query [benjamin franklin] brings up pages about Benjamin Franklin
 Plumbing. These queries also bring up pages that are targeted at elementary
 school students and user-generated content such as Yahoo Answers, which are not
-considered good reference material by most teachers.
+considered good reference material at the high school level.
 
-Traditional methods in information retrieval rely on term-based scoring between
-the query and the document via the vector space model \cite{salton1975vector} or
-more sophisticated Ngram models to ensure on-topic results. However, for many
-reasonable queries in the academic research context, such methods are
-fundamentally limited. We group problems that arise into three categories:
+These problem arise due to the reliance on term-based scoring between
+the query and the document. For many reasonable queries in the academic research
+context, such methods are fundamentally limited as demonstrated by current
+results from state-of-the-art search engines such as Google or Bing. We group
+problems that arise into three categories: 
 
 {\bf Off-topic results}. Often, many of the results are off-topic in the
 research context. For example, [benjamin franklin] brings up results about a
@@ -79,17 +81,17 @@ often lead the student astray.
 a site may be targeted at the wrong level. For example, [thomas jefferson]
 returns a page from the children's version of the Library of Congress
 website while  more detailed queries often return papers from graduate level
-work. Typically web pages are not explicitly labeled with the level of
-the intended audience making it difficult to formulate an query that returns
-appropriate results.
+work. Typically, web pages are not explicitly labeled with the level of
+the intended audience which makes it difficult to formulate a query that
+returns appropriate results.
 
 In practice, the user must compensate for these search engine deficiencies by
-constructing more specific queries. Unfortunately, this both requires an
-intimate knowledge of the subject, which by definition the student does not yet
-have, and often eliminates potentially good results. The root of the problem is
+constructing more specific queries. Unfortunately, this requires both an
+intimate knowledge of the subject (which the student does not yet
+have) and often eliminates potentially good results. The root of the problem is
 that a two or three word query does not communicate the context in which the
-student is trying to use the search engine. Thus, the general purpose
-search engine must have appropriate results for all users and cannot
+student is trying to use the search engine. Thus, since general purpose
+search engines must have appropriate results for all users, they cannot
 provide the best possible results for a particular student in a specific
 educational context. 
 
@@ -103,7 +105,7 @@ search engines. In order to run the search engine, we use the Google Custom
 search engine platform  (\url{http://google.com/cse}) which allows us to
 restrict the corpus of our search engine to a set of url patterns or sites. The
 CSE platform takes care of the cumbersome tasks of crawling the web, building an
-index and running the search engine. This has allowed us to not only build a
+index, and running the search engine. This has allowed us to not only build a
 search engine for APUSH, but to also make it widely available to students taking
 the course.     
 
@@ -111,7 +113,7 @@ We first demonstrate the utility of this course-specific search engine by creati
 a reference search engine with a manually curated set of sites. In a
 blind side-by-side evaluation by domain experts (APUSH teachers), this search
 engine is overwhelmingly preferred to Google. However, manually curating
-thousands of sites is a time-consuiming process and thus we develop two
+thousands of sites is a time-consuming process and thus we develop two
 automated algorithms. In order to do so, we make the assumption there exists a
 textbook, or other authoritative source, which describes the course content.
 We propose two algorithms that utilize this source: one using textual similarity and
@@ -127,8 +129,8 @@ documents that are on the same topic. For example, this structure can be
 exploited to create a topic-specific Page Rank for influencing ranking
 \cite{haveliwala2003topic, hsu2006topic} or to influence the order in which
 pages should be crawled \cite{buntine2004scalable}. In contrast, our work uses the
-text content of an authoritative source (the course textbook) to define
-topic-specific ranking algorithms.
+text content of an authoritative source (the course textbook) rather than link
+structure to define topic-specific ranking algorithms.
 
 Focusing on the domain of search engines for the educational context, the most
 closely related systems are those of PubMed, Web of Science and Google
@@ -152,28 +154,28 @@ we use the Google CSE platform which allows us to specify the corpus for our a
 search engine as a set of url patterns.
 
 If we knew all the queries that students will issue in the APUSH context, a
-brute force approach would be to go through the search results returned by
-Google and manually pick the good results. Clearly, this is not possible both
-because the queries are not known apriori and because of the magnitude of manual
-work that would be required. We therefore approximate this by computing likely
-queries from the textbook and then, by doing the curation at the site level as
-opposed to the page level. This curated set of sites will then form the corpus
-of our reference search engine.
+brute force approach would be to curate every search result returned by
+Google for every query, manually picking the good sources. Clearly, this is not possible both
+because the queries are not known a priori and because of the magnitude of manual
+work that would be required. We therefore approximate this process by computing likely
+queries from the textbook and by curating at the site level rather than page
+level. This curated set of sites will then form the corpus of our reference
+search engine. 
 
-Most history related queries include one or more proper nouns (people, events,
+In order to compute likely queries, we observe that most history-related queries
+include one or more proper nouns (people, events, 
 places, etc.). Thus, we use the digital version of the textbook \cite{textbook}
-to extract all the proper nouns, using simple syntactic cues such as
+to extract proper nouns, using simple syntactic cues such as
 capitalization and punctuation. This method identifies 1206 distinct proper
 nouns, occurring a total of 11241 times in the text. We then form queries out of
 tuples of proximately occurring proper nouns and retrieve the top ten results
-from Google. The 132,145 results for these queries come from 23393 sites. There are
+from Google, resulting in 132,145 results from 23393 sites. There are
 1757 sites which appear in at least 10 results and these account for 70.2\% of
-all results. We manually examined each of these sites to put them into two
-buckets: those that were bad (either off-topic (e.g., trulia.com, yelp.com)
+all results. We manually examined each of these sites and classified them into two
+groups: those that were bad (either off-topic (e.g., trulia.com, yelp.com)
 or not appropriate for academic work (e.g., answers.yahoo.com, wikianswers.com))
 and those that were good. 768 were off-topic or not appropriate, leaving us with
-989 good sites. So, if we were to randomly select sites, only 56\% of the
-selected sites will be good. 
+989 good sites; randomly selecting sites would thus result in 56\% good.
 
 \begin{figure}
 \includegraphics{teacher_eval}
@@ -182,59 +184,49 @@ selected sites will be good.
 \end{figure}
 
 We created a custom search engine using the good sites (available at
-\url{http://guha.com/apushcse.html}). In order to evaluate this search engine,
-we collected a set of 20 queries (included in Appendix \ref{app-queries}) and
-asked a set of 4 history teachers to compare results from Google versus results
-from the custom search in a blind side-by-side test setup. They were asked to
-assign one of the following ratings to each side-by-side: side A/B is better,
+\url{http://guha.com/apushcse.html}) and evaluated it on a collection of 20
+APUSH-related queries included in Appendix \ref{app-queries}.
+We asked 4 history teachers to compare results from Google versus results
+from the APUSH search engine in a blind side-by-side test. They were asked
+to assign one of the following ratings to each side-by-side: side A/B is better,
 side A/B are about the same. As can be seen in Figure \ref{fig-eval}, the
-course-specific custom search engine is substantially preferred.
+course-specific search engine is substantially preferred. 
 
 \section{Methods for automation}
 
-Our long term goal is to be able to create a course-specific search engine from
-the course textbook with minimal manual supervision. In particular, instead of manually
-curating thousands of sites, we wish to develop algorithms that distinguish
+Instead of manually labeling thousands of sites, our goal to create a course-specific search engine from 
+the course textbook with minimal manual supervision. We wish to develop algorithms that distinguish
 between sites that produce off-topic results / sites that are inappropriate for 
 academic usage and sites that may be used for academic work.  Rather than
 attempting a binary classification of sites into ``good'' and ``bad'', we wish
 to rank sites based on the likelihood of them returning good results for APUSH
 searches. A search engine can then be configured to include just the top N sites
-or better, or to prefer sites that are ranked higher. 
+or better, or to prefer sites proportional to their likelihood of returning good
+results in the APUSH context.
 
-In order to automate the process of identifying these sites, we consider
-different methods of using the authoritative text provided by the textbook in an
-offline process. For simplicitly, we evaluate our ranking of sites using a
-classification framework---of the 1757 APUSH-related sites, we consider what
-portion of the 989 good sites are ranked above the 768 bad ones. The main
+In order to automate the process of identifying these sites, we describe two
+methods for using the authoritative content provided by the textbook. The main
 intuition behind our algorithms is that by using the wealth of information
-provided by the textbook, we can drastically improve upon scoring that is based
-solely on a two or three word query. Thus, a reasonable baseline is to a consider
-a simple frequency-based approach in which we rank sites 
-in descending order of the frequency by which they show up for the synthetic
-queries described in the previous section. However, as we discuss in the experimental results
-section, this simple frequency-based approach does not improve significantly
-over a random baseline.
+provided by the textbook, we can drastically improve upon generic search scoring
+that is based solely on a two or three word query. 
 
-Thus, in order to use the information provided in the textbook more effectively,
-we develop two new algorithms for topic-specific site scoring. We begin with an
-approach that computes text similarity via TF-IDF weighted cosine distance in order to prefer sites
-that are more similar to the APUSH textbook. Next, we consider an approaching using
-structured data from a knowledge base to identify APUSH-related categories,
-entities and proper nouns. We augment both approaches using relevance feedback
-which we approximate with our hand-labeled sites. As discussed in the
-experimental results section, we find that both algorithms improve significantly
-over the frequency scoring baseline and when combined in a hybrid approach,
-deliver results that approach the quality of the hand-labeled corpus employed in
-our reference search engine. 
+%%  Thus, a reasonable baseline is to a consider
+%% a simple frequency-based approach in which we rank sites 
+%% in descending order of the frequency by which they show up for the synthetic
+%% queries described in the previous section. However, as we discuss in the experimental results
+%% section, this simple frequency-based approach does not improve significantly
+%% over a random baseline.
+
 
 \subsection{TF-IDF weighted text similarity}
 
-Classical information retrieval is based on the notion of similarity between two
-pieces of text, typically, the query and the web page.  In our case, we compute
-the similarity between the pages on a site and the APUSH textbook. Sites that
-are more similar to the APUSH textbook should be more likely to return better
-results for searches in the APUSH context. 
+We begin with an
+approach that computes textual similarity between the textbook and a site via
+TF-IDF weighted cosine distance. Classical 
+information retrieval is based on the notion of similarity between two 
+pieces of text---typically, the query and the web page.  Intuitively, by
+preferring sites that are more similar to the APUSH textbook, the search engine
+will be more likely to return better results for searches in the APUSH context.  
 
 One of the most commonly used similarity measures is the cosine similarity
 metric based on the vector space model of documents \cite{salton1975vector}. In
@@ -242,14 +234,14 @@ this model, each document is a vector in an $n$-dimensional space in which each
 term in the corpus is a dimension. Using the popular TF-IDF weighting, the
 magnitude of the document vector along the $i$th axis is given by by a product
 of the term's frequency in the document (TF) and the inverse document frequency
-(IDF)---the log of the inverse fraction of documents containing the term in the
+(IDF) of the term---the log of the inverse fraction of documents containing the term in the
 entire corpus. The cosine similarity between two documents in this space is
 given by the angle between the document vectors.
 
-In order to compute the similarity of a site to the APUSH textbook we first
+In order to compute the similarity of a site to the APUSH textbook, we first
 retrieve all pages from the site that are returned by Google for the queries
 used to create the reference search engine. After stripping the pages of HTML
-markup and javascript, we stem the words on each page (using the Porter Stemmer 
+markup and javascript, we stem the words on each page (using the Porter stemmer 
 \cite{porter1980algorithm}) and extract the terms from each along with their
 frequency of occurrence. We sum the document vectors across the entire site and
 compute the cosine similarity between the resulting site vector and that of
@@ -257,14 +249,17 @@ the APUSH textbook.
 
 \subsection{Knowledge bases}
 
-The realization that most queries and web documents are about real word entities
+Next, we consider an approaching using
+structured data from a knowledge base to identify APUSH-related categories,
+entities and proper nouns. The realization that most queries and web documents
+are about real word entities 
 has led  many of the major search engine providers to build various kinds of knowledge
 bases to augment their search results (see for example \cite{googlekg}). In the
 academic sphere, there has also been significant work on the semantic
 web \cite{berners2001semantic} and linked data \cite{bizer2008linked}, aiming to build a
 large distributed network of information about entities and the relations
 between them. In this section, we describe how knowledge bases can be
-used to improve the ranking based on simple textual similarity.  
+used to improve ranking based on simple textual similarity.  
 
 First, we observe that some types of entities lead to more off-topic results than
 others. For example, places (e.g., Virginia, Maryland) are more likely to lead
@@ -277,31 +272,31 @@ places) captures some of the APUSH context.
 
 Our goal is to automatically identify the types that are more likely to give
 good results and give greater preference to the sites that contain these kinds
-of entities. In order to do this, construct mappings from the proper nouns that
+of entities. In order to do this, we must first construct mappings from the proper nouns that
 we extract from the text to entities and from the entities to types of
-entities. To do this in a fashion that is not specific to history, we need a
+entities. To construct such mappings in a fashion that is not specific to history, we need a
 broad knowledge base about a large number of entities, along with information
-about the type of each entity. Wikipedia contains such information and DBPedia
+about the type of each entity. Wikipedia contains such information and DBpedia
 (available at \url{http://dbpedia.org/}) makes this information available as a
 structured knowledge base. In particular, each ``thing'' in Wikipedia
-corresponds to an entity in DBPedia and each ``category'' in Wikipedia
-corresponds to a DBPedia type. We will use DBPedia as the primary source of
+corresponds to an entity in DBpedia and each ``category'' in Wikipedia
+corresponds to a DBpedia type. We will use DBpedia as the primary source of
 entities, types and for mapping proper nouns to entities and entities to types. 
 
-Next, we consider the task of mapping proper nouns extracted from text
+Now we consider the task of mapping proper nouns extracted from text
 to a set of candidate entities and types in DBpedia. In general, there are many
 different proper nouns that refer to the same real world entity---for example,
 President Lincoln, Abraham Lincoln, and Abe Lincoln all refer to the same 
 person. Similarly, a given proper noun (e.g., Washington) could map to multiple
 different entities. We found that the most robust way of mapping from proper
-nouns to entities is to use search itself using the following method. For every
+nouns to entities is to use search itself with the following method. For every
 proper noun P, we issue the query [P site:wikipedia.org] which returns a set of
 results with urls of the form ``http://\-en.wikipedia.org/wiki/<entity-id>''. We take
 the top 3 entities for each query as the candidate entities for the corresponding
 proper noun. Each entity may also have a number of categories associated with it---for  
 example, the entity whose unique identifier is Abraham\_Lincoln has 29
 different categories associated with it: American\_Presidents,
-Illinois\_Lawyers, Assasinated\_HeadsOfState, etc. We use the RDF dumps from
+Illinois\_Lawyers, Assassinated\_HeadsOfState, etc. We use the RDF dumps from
 DBpedia to construct the mapping from entities to categories.
 
 Given these mappings from proper nouns to categories, we score each category
@@ -322,10 +317,10 @@ where $\#Textbook$ and $\#DBpedia$ count the number of times entities in
 the category occur in the textbook and DBpedia, respectively.
 
 For example, the textbook contains references to 33 entities in the category
-American\_Presidents, which, in DBPedia is associated with 44 entities, giving
+American\_Presidents, which, in DBpedia is associated with 44 entities, giving
 this category a score of 0.75. On the other hand, even though the text contains
 references to more Harvard\_University\_Alumni (34), a total of 6533 entities in
-DBPedia are associated with this category, giving Harvard\_University\_Alumni a
+DBpedia are associated with this category, giving Harvard\_University\_Alumni a
 much lower score than American\_Presidents. 
 
 \begin{table}
@@ -339,7 +334,7 @@ Whig Party \\
 Presidency of James Monroe \\
 Christian denominational families \\
 \hline \end{tabular}
-\caption{DBPedia categories for APUSH}
+\caption{DBpedia categories for APUSH}
 \label{tab-categories}
 \end{center}
 \end{table}
@@ -352,24 +347,24 @@ Martin Van Buren \\
 Thomas Jefferson \\
 James Monroe \\
 Abraham Lincoln \\
-James Buchanana \\
+James Buchanan \\
 Zachary Taylor \\
 William Henry Harrison \\
 Russia \\
 \hline\end{tabular}
-\caption{DBPedia entities for APUSH}
+\caption{DBpedia entities for APUSH}
 \label{tab-entities}
 \end{center}
 \end{table}
 
 Table \ref{tab-categories} gives top categories considered most relevant to
 APUSH by this algorithm. As can be seen, of the hundreds of thousands of
-categories in DBPedia (which includes categories for rock stars, planets, etc.), the
-top scoring categories are indeed very apropos to US History.           
+categories in DBpedia (which includes categories for rock stars, planets, etc.), the
+top scoring categories are indeed very apropos to US history.           
 We then score each entity by summing the scores for the categories that it is
 associated with. For example, the entity Abraham\_Lincoln gets a contribution
 from each of the 29 categories that it is a part of. Table \ref{tab-entities}
-gives some of the top-rated entities. 
+gives the top-rated entities. 
 
 \begin{table}
 \begin{center}
@@ -393,8 +388,8 @@ President Van Buren \\
 Next, we score each proper term by adding the scores of all the entities that it
 could refer to. So, since ``Abraham Lincoln'' could refer to the president or the
 movie with that name, each entity contributes a score. Table \ref{tab-terms}
-gives some of the top-rated proper terms. Again, as can be seen, of the millions
-of entries in DBPedia, the ones chosen are indeed very highly apropos to the
+gives the top-rated proper terms. Again, as can be seen, of the millions
+of entries in DBpedia, the ones chosen are indeed very highly apropos to the
 APUSH context.  
 
 We then score each query based on the proper terms in the query. Finally, we
@@ -406,8 +401,8 @@ candidate for inclusion into the APUSH search engine.
 \subsection{Relevance feedback}
 
 \begin{figure*}[t!]
-\includegraphics[width=3.45in]{expt}
-\includegraphics[width=3.45in]{expt_relevance}
+\includegraphics{expt}
+\includegraphics{expt_relevance}
 \caption{Comparison of basic algorithms on classification of APUSH
   sites (left) and  augmented with relevance feedback and hybrid scoring (right)}
 \label{fig-expt}
@@ -417,13 +412,13 @@ The previous two algorithms address the fundamental problem of off-topic search
 results that we discuss in the introduction. As we demonstrate in the
 experimental section, they both make significant progress toward automated
 construction of the course-specific search engine for APUSH. However, they are
-not capable of identifying sites that are on-topic but either at the wrong
-academic level or inappropriate for academic purposes, such as answers.yahoo.com or
-ConfederateAmericanPride.com. To address these issues, we employ a classical
-method in information retrieval, relevance feedback. 
+not well-suited to distinguish between good sites and sites that are on-topic
+but either at the wrong academic level or inappropriate for academic purposes,
+such as answers.yahoo.com or ConfederateAmericanPride.com. To address these
+issues, we employ a classical method in information retrieval, relevance feedback. 
 
 Using relevance feedback to improve the performance of systems is an established
-technique \cite{salton1997improving}---as the search engine gets used, we can
+technique \cite{salton1997improving}; as the search engine gets used, we can
 interpret clicks from the user as feedback. For example, if users repeatedly
 skip results from a certain site even when pages from that site are ranked
 higher, preferring results from certain other sites, they are expressing a
@@ -438,9 +433,8 @@ sites would be obtained from usage logs.
 
 In order to use relevance feedback to improve the text similarity algorithm, we
 aggregate the good sites and bad sites into two large composite documents. Then,
-we score each site using the TF-IDF weight text similarity algorithm described
-in the previous section to generate a $GoodScore$ and a $BadScore$ for each
-document. We then form the $RelTextScore$ as 
+we score each site using TF-IDF weighted text similarity to generate a
+$GoodScore$ and a $BadScore$ for each document. We then form the $RelTextScore$ as 
 \begin{equation}
 RelTextScore = TextScore + GoodScore - BadScore
 \end{equation}
@@ -461,43 +455,41 @@ propagate the category scores to the sites.
 
 \section{Experimental results}
 
-\textcolor{red}{Clean this up}
+In this section, we evaluate the ability of our proposed methods to identify
+high quality sites for a course-specific search engine. In practice, this
+would typically be done using a side-by-side methodology to evaluate the
+relative quality of search results similar to the procedure described in Section
+2. However, given that the APUSH search engine constructed from a hand-labeled
+corpus is strongly preferred to Google (as shown in Table \ref{fig-eval}), we
+instead focus on the ability of our methods to recover this hand-labeled
+corpus. For simplicity, we will evaluate our ranking of sites using a 
+classification framework---of the 1757 APUSH-related sites, we consider what
+fraction of the 989 good sites are ranked above the 768 bad ones.
+
+In Figure \ref{fig-expt} (left) we see that both of our approaches significantly
+outperform the baseline of $56\%$, which comes from picking sites
+randomly. Although neither approaches provide perfect classification accuracy,
+for the purposes of constructing a course-specific search engine, it is clear
+that the course textbook provides a significant signal as to what is relevant
+for the APUSH educational context.  Furthermore, the strongly positive
+results of the side-by-side in Table \ref{fig-eval} suggest that even simplistic
+methods of incorporating this signal into search ranking may lead to significant
+gains in search quality.
 
 
-
-Of the 1453 sites we examined as part of the manual curation, 582 were good, 871
-tended to give off-topic or inappropriate (i.e., bad) results. So, randomly
-picking sites for inclusion into the search engine will lead to 40.05\% of the
-sites being good. This forms the baseline for evaluating algorithms for
-automating the curation. 
-
-Each of our algorithms produces a list of sites ranked according to their
-likelihood of producing good results for APUSH queries. We use the manually
-curated list of good sites to measure how well an algorithm performs. The ideal
-algorithm would rank each of the 989 good sites above the bad sites. Therefore,
-a good metric for evaluating an algorithm is the number of good sites included
-in the top 100, 200, 300, 400 and 500 sites picked by the algorithm. 
-
-We also created a baseline from simple frequency-based scoring, where
-sites are ranked based on their frequency. As visible in Figure XXX, this demonstrates that the
-most commonly occuring sites for any query are not necessarily good. 
-
-\textcolor{red}{More details of experimental methodology here and discussion
-  of results from previous sections and put here. Also include the description
-  of the simple frequency-based scoring approach here as this is really a baseline
-  not a proposed method. Include graph.}  
-
-\subsection{Relevance feedback and hybrid scoring}
-
-\textcolor{red}{Include graphs and discussion of results here when you add in
-  relevance feedback and hybrid scoring}
-
-As a final step, we investigate combining the statistical, similarity based
-score with the knowledge based score. We compute a combined score by simply
-adding the similarity score and the knowledge based score. Table 8 gives the
-results from this hybrid approach. As can be seen, there is a very small
-improvement over just the similarity score. We believe that there is room for
-improvement here and this is one of the directions of future work. 
+In Figure \ref{fig-expt} (right), we examine the effect of incorporating
+relevance feedback and hybrid scoring. We see that although relevance feedback
+improves precision at various points on the recall curves---for example,
+improving precision for the highest ranking sites from the knowledge base
+approach---it does not have as large an impact as might be expected. We believe
+the reasons for this are two-fold: 1) the simplistic nature of our use of the
+feedback information and 2) a lack of real feedback data. Ideally, we would
+improve on this result by using more sophisticated methods and a large amount of
+real search logs from a running search engine. Finally, we also
+investigate combining the textual similarity score with the knowledge base
+score by simply adding the two scores. As can be seen, there
+is a small improvement over just the similarity score and we believe that
+improving this hybrid scoring is another direction for future work.
 
 \bibliographystyle{abbrv}
 \bibliography{apush_cse}
