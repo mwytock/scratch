@@ -1,0 +1,54 @@
+body {
+    font-size: small;
+    font-family: Arial, sans-serif;
+}
+
+.logging {
+    color: #676767;
+}
+
+#front {
+    text-align: center;
+}
+
+#front h1 {
+    margin: 2em 0 1em;
+    padding: 0;
+}
+
+#front .gsc-control-searchbox-only {
+    margin: 2em auto;
+    width: 600px;
+    
+}
+
+#front h2 {
+    margin: 2em 0 1em;
+}
+
+#front .gsc-search-box {
+    padding-left: 28px;
+}
+
+#front ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#search {
+    width: 600px;
+}
+
+#search .gsc-tabsArea {
+    display: none;
+}
+
+#search h1 {
+    margin: 1em 13px 0;
+}
+
+#search h1 a {
+    text-decoration: none;
+    color: black;
+}
