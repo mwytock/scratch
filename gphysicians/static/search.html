@@ -1,26 +1,38 @@
 <html>
 <head>
-  <title>Stanford Unversity Medical Search</title>
+  <title>Stanford Medical Search</title>
   <link href="search.css" rel="stylesheet" type="text/css" />
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
   <script src="search.js"></script>
 </head>
-<body id="search">
-  <h1><a href="/">Stanford University Medical Search</a></h1>
-    <script>
-      window.__gcse = {
-        callback: loaded
-      };
+<body>
+  <div id="header">
+    <div id="logo" href="/">
+      <a href="/">
+        <img src="http://med.stanford.edu/Templates/images/logo_header_som2.gif"/>
+      </a>
+    </div>
+    <div id="query">
+      <form id="query-form">
+        <input id="query-text" type="text" value="diabetes"/>
+        <input id="query-button" type="image"
+               src="http://www.google.com/uds/css/v2/search_box_icon.png" />
+      </form>
+    </div>
+  </div>
+  
+  <div id="content">
+    <div id="lhs">
+      <ul id="modes">
+        <li><a class="selected">Web</a></li>
+        <li><a>Images</a></li>
+        <li><a>Videos</a></li>
+        <li><a>Google</a></li>
+      </ul>
+    </div>
 
-      (function() {
-      var cx = '015533284649053097143:eyct-samxvy';
-      var gcse = document.createElement('script'); gcse.type = 'text/javascript'; gcse.async = true;
-      gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
-      '//www.google.com/cse/cse.js?cx=' + cx;
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(gcse, s);
-      })();
-    </script>
-    <gcse:search enableHistory="true"></gcse:search>
+    <div id="results"></div>
+  </div>
   </div>
 </body>
 </html>

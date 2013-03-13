@@ -3,6 +3,20 @@ body {
     font-family: Arial, sans-serif;
 }
 
+cite {
+    color: #093;
+    font-style: normal
+}
+
+a {
+    color: #36c;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
 .logging {
     color: #676767;
 }
@@ -36,19 +50,101 @@ body {
     padding: 0;
 }
 
-#search {
-    width: 600px;
+
+#header {
+    height: 50px;
 }
 
-#search .gsc-tabsArea {
-    display: none;
+#content {
+    margin-top: 1.5em;
 }
 
-#search h1 {
-    margin: 1em 13px 0;
+#logo, 
+#lhs {
+    width: 200px;
+    position: absolute;
 }
 
-#search h1 a {
+#query,
+#results {
+    margin-left: 220px;
+}
+
+
+body {
+    margin: 1.5em;
+}
+
+#modes {
+    list-style: none;
+    line-height: 2em;
+    margin: 0 0 0 10px;
+    padding: 0;
+}
+
+#modes a.selected {
+    color: #dd4b39;
+    font-weight: bold;
+}
+
+#modes a {
+    cursor: pointer;
+    color: #444;
+}
+
+#results ol {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0 8px;
+}
+
+#search-form {
+    height: 100%;
+}
+
+#query input {
+    vertical-align: top;
+}
+
+#query-text {
+    font-size: 16px;
+    padding: 4px 6px;
+    width: 550px;
+}
+
+#query-button {
+    background-color: #980000;
+    border: 1px solid #666;
+    border-radius: 2px;
+    padding: 6px 27px;
+    margin-top: 3px;
+    margin-left: 1em;
+}
+
+
+#logo {
     text-decoration: none;
-    color: black;
+}
+
+#results {
+    width: 550px;
+}
+
+#results li {
+    line-height: 1.24;
+}
+
+#results li p {
+    color: #222;
+    margin: 0;
+}
+
+#results li h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+#results li {
+    margin-bottom: 25px;
 }

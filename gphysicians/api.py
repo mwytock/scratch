@@ -18,7 +18,7 @@ class RecentApi(webapp2.RequestHandler):
 
         seen_queries = {}
         recent = []
-        for log_entry in q.run(limit=100):
+        for log_entry in q.run(limit=30):
             if log_entry.query in seen_queries:
                 continue
             recent.append({"query": log_entry.query})
