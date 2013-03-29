@@ -4,6 +4,30 @@ var CX = '015533284649053097143:eyct-samxvy';
 
 var state = null;
 
+var ui = {};
+ui.result = function(result) {
+    return $('<li>')
+        .append($('<h3>')
+                .append($('<a>').attr('href', result.link).html(result.htmlTitle)))
+        .append($('<cite>').html(result.formattedUrl))
+        .append($('<p>').html(result.htmlSnippet.replace(/<br>/g, '')));
+};
+
+ui.spelling = function(spelling) {
+    var q = spelling.correctedQuery;
+    return $('<div>').addClass('spelling')
+        .append('Did you mean ')
+        .append($('<a>').attr('href', searchUrl({q: q})).text(q)
+                .on('click', function(e) {
+                    state.q = q;
+                    $('#query-text').val(q);
+                    history.pushState(state, state.q, searchUrl(state));
+                    search(state.q);
+                    return false;
+                }))
+        .append('?');
+};
+
 function parseParams() {
     var params = {};
     if (!location.search) 
@@ -17,29 +41,6 @@ function parseParams() {
         params[name] = value;
     }
     return params;
-}
-
-function renderResult(result) {
-    return $('<li>')
-        .append($('<h3>')
-                .append($('<a>').attr('href', result.link).html(result.htmlTitle)))
-        .append($('<cite>').html(result.formattedUrl))
-        .append($('<p>').html(result.htmlSnippet.replace(/<br>/g, '')));
-}
-
-function renderSpelling(spelling) {
-    var q = spelling.correctedQuery;
-    return $('<div>').addClass('spelling')
-        .append('Did you mean ')
-        .append($('<a>').attr('href', searchUrl({q: q})).text(q)
-                .on('click', function(e) {
-                    state.q = q;
-                    $('#query-text').val(q);
-                    history.pushState(state, state.q, searchUrl(state));
-                    search(state.q);
-                    return false;
-                }))
-        .append('?');
 }
 
 function logQuery(query) {
@@ -70,10 +71,10 @@ function search(query) {
         success: function(data) {
             results.empty();
             if (data.spelling)
-                results.append(renderSpelling(data.spelling));
+                results.append(ui.spelling(data.spelling));
 
             if (data.items) {
-                results.append($('<ol>').html($.map(data.items, renderResult)));
+                results.append($('<ol>').html($.map(data.items, ui.result)));
             } else {
                 results.append(
                     $('<p>')
