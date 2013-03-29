@@ -9,6 +9,7 @@ cite {
 }
 
 a {
+    cursor: pointer;
     color: #36c;
     text-decoration: none;
 }
@@ -33,7 +34,6 @@ a:hover {
 #front .gsc-control-searchbox-only {
     margin: 2em auto;
     width: 600px;
-    
 }
 
 #front h2 {
@@ -50,6 +50,11 @@ a:hover {
     padding: 0;
 }
 
+#front input.gsc-search-button {
+    background-color: #980000;
+    background-image: -webkit-linear-gradient(top,#980000,#980000);    
+    border: 1px solid #666;
+}
 
 #header {
     height: 50px;
