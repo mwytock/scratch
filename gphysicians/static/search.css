@@ -75,6 +75,10 @@ a:hover {
     margin-left: 220px;
 }
 
+#results {
+    padding-left: 8px;
+}
+
 
 body {
     margin: 1.5em;
@@ -100,10 +104,9 @@ body {
 #results ol {
     list-style: none;
     padding: 0;
-    margin: 0 0 0 8px;
 }
 
-#search-form {
+#query form {
     height: 100%;
 }
 
@@ -131,25 +134,57 @@ body {
     text-decoration: none;
 }
 
-#results {
+.web {
     width: 550px;
 }
 
-#results li {
+.web li {
     line-height: 1.24;
 }
 
-#results li p {
+.web li p {
     color: #222;
     margin: 0;
 }
 
-#results li h3 {
+.web li h3 {
     margin: 0;
     font-size: 16px;
     font-weight: normal;
 }
 
-#results li {
+.web li {
     margin-bottom: 25px;
 }
+
+.images li {
+    position: relative;
+    display: inline-block;
+    margin: 0 15px 15px 0;
+}
+
+.images img {
+    height: 150px;
+}
+
+.images cite {
+    background: rgba(51,51,51,0.8);
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 4px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 15px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    display: none;
+}
+
+.images li:hover cite {
+    display: block;
+}
+
