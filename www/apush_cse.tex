@@ -12,10 +12,12 @@
 \author{
   \alignauthor
   Neel Guha \\
+Henry M Gunn High School
   \email{neelguha@gmail.com}
   \alignauthor
   Matt Wytock \\
-  \email{mwytock@gmail.com}
+Carnegie Mellon University
+  \email{mwytock@cs.cmu.edu}
 }
 
 \maketitle
@@ -26,8 +28,8 @@ not understanding the context of search (the high school course),
 leading to results that are off-topic or inappropriate as reference material. In
 this paper, we introduce the concept of a course-specific search 
 engine and build such a search engine for the Advanced Placement US
-History (APUSH) course; the results of which are evaluated by subject matter experts (high
-school teachers) and judged to be overwhelmingly superior to existing search
+History (APUSH) course; the results of which are preferred by subject matter experts (high
+school teachers) over existing search
 engines. This reference search engine for APUSH relies on a hand-curated set of
 sites picked specifically for this educational context. In order to automate
 this expensive process, we describe two algorithms for indentifying high quality
@@ -116,10 +118,15 @@ engine is overwhelmingly preferred to Google. However, manually curating
 thousands of sites is a time-consuming process and thus we develop two
 automated algorithms. In order to do so, we make the assumption there exists a
 textbook, or other authoritative source, which describes the course content.
-We propose two algorithms that utilize this source: one using textual similarity and
-another using structured data from knowledge bases. Our experimental results
-indicate that these algorithms significantly reduce the amount of manual work
-required to create a course-specific search engine.
+
+We propose two algorithims that utilize such an authoritative source. The first
+evaluates sites based on their textual similarity to the textbook using
+TF-IDF weighted cosine distance. The second uses knowledge bases to identify
+APUSH-related topics, which are then used to identify APUSH-related sites. Our
+experimental results indicate that these algorithms significantly reduce the
+amount of manual work required to create a course-specific search engine.
+
+
 
 \subsection{Related work}
 
@@ -150,7 +157,7 @@ show how search results can be augmented with snippets from a knowledge base.
 In order to evaluate the relative performance of a search engine for the AP US
 History course, we first create a reference search engine based on a standard textbook
 \cite{textbook}, which is available in PDF form. As described above,
-we use the Google CSE platform which allows us to specify the corpus for our a
+we use the Google CSE platform which allows us to specify the corpus for our
 search engine as a set of url patterns.
 
 If we knew all the queries that students will issue in the APUSH context, a
@@ -210,14 +217,6 @@ intuition behind our algorithms is that by using the wealth of information
 provided by the textbook, we can drastically improve upon generic search scoring
 that is based solely on a two or three word query. 
 
-%%  Thus, a reasonable baseline is to a consider
-%% a simple frequency-based approach in which we rank sites 
-%% in descending order of the frequency by which they show up for the synthetic
-%% queries described in the previous section. However, as we discuss in the experimental results
-%% section, this simple frequency-based approach does not improve significantly
-%% over a random baseline.
-
-
 \subsection{TF-IDF weighted text similarity}
 
 We begin with an
@@ -253,13 +252,14 @@ Next, we consider an approaching using
 structured data from a knowledge base to identify APUSH-related categories,
 entities and proper nouns. The realization that most queries and web documents
 are about real word entities 
-has led  many of the major search engine providers to build various kinds of knowledge
-bases to augment their search results (see for example \cite{googlekg}). In the
+has led many of the major search engine providers to build various kinds of knowledge
+bases to augment their search results (for example, see \cite{googlekg}). In the
 academic sphere, there has also been significant work on the semantic
 web \cite{berners2001semantic} and linked data \cite{bizer2008linked}, aiming to build a
 large distributed network of information about entities and the relations
 between them. In this section, we describe how knowledge bases can be
-used to improve ranking based on simple textual similarity.  
+used to identify topics related to APUSH. The identification of these topics can
+then be used improve ranking based on simple textual similarity.   
 
 First, we observe that some types of entities lead to more off-topic results than
 others. For example, places (e.g., Virginia, Maryland) are more likely to lead
@@ -298,6 +298,7 @@ example, the entity whose unique identifier is Abraham\_Lincoln has 29
 different categories associated with it: American\_Presidents,
 Illinois\_Lawyers, Assassinated\_HeadsOfState, etc. We use the RDF dumps from
 DBpedia to construct the mapping from entities to categories.
+
 
 Given these mappings from proper nouns to categories, we score each category
 according to the likelihood of a query with proper nouns in that category
@@ -361,6 +362,8 @@ Table \ref{tab-categories} gives top categories considered most relevant to
 APUSH by this algorithm. As can be seen, of the hundreds of thousands of
 categories in DBpedia (which includes categories for rock stars, planets, etc.), the
 top scoring categories are indeed very apropos to US history.           
+
+
 We then score each entity by summing the scores for the categories that it is
 associated with. For example, the entity Abraham\_Lincoln gets a contribution
 from each of the 29 categories that it is a part of. Table \ref{tab-entities}
@@ -385,6 +388,8 @@ President Van Buren \\
 \end{center}
 \end{table}
 
+
+
 Next, we score each proper term by adding the scores of all the entities that it
 could refer to. So, since ``Abraham Lincoln'' could refer to the president or the
 movie with that name, each entity contributes a score. Table \ref{tab-terms}
@@ -392,7 +397,8 @@ gives the top-rated proper terms. Again, as can be seen, of the millions
 of entries in DBpedia, the ones chosen are indeed very highly apropos to the
 APUSH context.  
 
-We then score each query based on the proper terms in the query. Finally, we
+
+We then score each query by summing the scores of the proper terms in the query. Finally, we
 score each of the sites based on the scores associated with the queries for
 which they produced results. The score for the site is the average of the query
 scores. This gives us a ranking of sites by the likelihood of them being a good
@@ -404,7 +410,10 @@ candidate for inclusion into the APUSH search engine.
 \includegraphics{expt}
 \includegraphics{expt_relevance}
 \caption{Comparison of proposed algorithms on classification of APUSH
-  sites (left); augmented with relevance feedback and hybrid scoring (right)}
+  sites (left); augmented with relevance feedback and hybrid scoring (right).
+  Precision represents the percentage of good sites when looking at the
+  top n sites and recall represents the percentage of good sites out of the
+  total number of good sites that are in the top n } 
 \label{fig-expt}
 \end{figure*}
 
@@ -415,7 +424,7 @@ construction of the course-specific search engine for APUSH. However, they are
 not well-suited to distinguish between good sites and sites that are on-topic
 but either at the wrong academic level or inappropriate for academic purposes,
 such as answers.yahoo.com or ConfederateAmericanPride.com. To address these
-issues, we employ a classical method in information retrieval, relevance feedback. 
+issues, we employ a classical method in information retrieval, relevance feedback.  
 
 Using relevance feedback to improve the performance of systems is an established
 technique \cite{salton1997improving}; as the search engine gets used, we can
@@ -432,14 +441,20 @@ select 50 good and 50 bad sites. In practice, this list of good and bad
 sites would be obtained from usage logs. 
 
 In order to use relevance feedback to improve the text similarity algorithm, we
-aggregate the good sites and bad sites into two large composite documents. Then,
+aggregate the text of the good sites and bad sites into two large composite documents. Then,
 we score each site using TF-IDF weighted text similarity to generate a
-$GoodScore$ and a $BadScore$ for each document. We then form the $RelTextScore$ as 
+$GoodScore$ and a $BadScore$ based on the site's similarity to each document. We
+then form the $RelTextScore$ as  
+
 \begin{equation}
 RelTextScore = TextScore + GoodScore - BadScore
 \end{equation}
-where $TextScore$ denotes the text similarity score between the document and
-the APUSH textbook.
+where $GoodScore$ denotes the text similarity score between the site and the
+document of good sites, $BadScore$ denotes the text similarity score between the
+site and the document of bad sites, and $TextScore$ denotes the text similarity
+score between the site and the APUSH textbook. $RelTextScore$ denotes the score
+of a site based on it's textual similarity to the textbook and relevance
+feedback. 
 
 To augment the knowledge base approach, we compute a relevance feedback score
 for each category as follows. We take the categories associated with each query 
@@ -447,12 +462,14 @@ and propagate them to the sites associated with the query to get
 a set of categories associated with each site. The score associated with each
 category is 
 \begin{equation}
-RelCategoryScore = \#Good - \#Bad
+RelCategoryScore = CategoryScore + \#Good - \#Bad
 \end{equation}
-where $\#Good$ is the number of good sites associated with the category and $\#Bad$ is
-the number of bad sites associated with the category. Then, as before, we
-propagate the category scores to the sites.   
-
+where $\#Good$ is the number of good sites associated with the category, $\#Bad$ is
+the number of bad sites associated with the category, and $CategoryScore$ is the
+category based score of each site (described and calculated in section 3.2)
+. $RelCategoryScore$ represents the score of a category based on relevance
+feedback.  
+  
 \section{Experimental results}
 
 In this section, we evaluate the ability of our proposed methods to identify
@@ -490,6 +507,13 @@ investigate combining the textual similarity score with the knowledge base
 score by simply adding the two scores. As can be seen, there
 is a small improvement over just the similarity score and we believe that
 improving this hybrid scoring is another direction for future work.
+
+\section{Acknowledgments}
+
+ We would like to thank Professor Lam and Dr. Hangal from Stanford for guiding
+ our research and for feedback on several iterations of the paper. We would also
+ like to thank Mr. Tuomy, Mr. Johnson, Ms. Richard and Mr. Weisman for taking
+ the time to evaluate the search engine.
 
 \bibliographystyle{abbrv}
 \bibliography{apush_cse}
