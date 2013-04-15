@@ -2,6 +2,14 @@
 var KEY = 'AIzaSyDzvGIlo_6GmdRasOTnN17hJ9rS3hx_3OA';
 var CX = '015533284649053097143:eyct-samxvy';
 
+var LABELS = [{
+    name: 'Blue',
+    value: 'blue'
+}, {
+    name: 'Green', 
+    value: 'green'
+}];
+
 // The state of the page and the three UI components
 var params = {};
 var modes = null;
@@ -89,17 +97,116 @@ ui.results = {};
 ui.results.web = function(root) {
     var el = {};
 
+    var popupScreen = $('<div>').addClass('popup-screen')
+        .on('click', hidePopup)
+        .hide();
+    var popup = $('<div>').addClass('popup')
+        .hide();
+
+    $(document.body)
+        .append(popupScreen)
+        .append(popup);
+        
+    function showPopup(data) {
+        popupScreen.show();
+        
+        popup.empty()
+            .append($('<h1>').text('Add label'))
+            .append($('<div>').addClass('result')
+                    .append($('<h3>')
+                            .append($('<a>').attr('href', data.link)
+                                    .html(data.htmlTitle)))
+                    .append($('<cite>').html(data.formattedUrl))
+                    .append($('<p>')
+                            .html(data.htmlSnippet.replace(/<br>/g, ''))))
+
+        var form = $('<form>').addClass('add-label')
+            .append($('<label>')
+                    .append($('<input>')
+                            .attr('checked', 'true')
+                            .attr('type', 'radio')
+                            .attr('name', 'mode')
+                            .attr('value', 'site'))
+                    .append('Label entire site'))
+            .append($('<label>')
+                    .append($('<input>')
+                            .attr('type', 'radio')
+                            .attr('name', 'mode')
+                            .attr('value', 'page'))
+                    .append('Label this page'))
+            .append($('<select>')
+                    .attr('name', 'label')
+                    .html($.map(LABELS, function(l) {
+                        return $('<option>')
+                            .attr('value', l.value)
+                            .text(l.name);
+                    })));
+        
+        popup.append(form)
+            .append($('<div>').addClass('button-bar')
+                    .append($('<button>').text('Save')
+                            .on('click', function() {
+                                var params = form.serializeArray();
+                                params.push({
+                                    name: 'url',
+                                    value: data.link
+                                });
+                                saveLabel(params);
+                            }))
+                    .append($('<button>').text('Cancel')
+                            .on('click', hidePopup)))
+            .show();
+    }
+
+    function saveLabel(params) {
+        $.ajax({
+            url: '/api/label',
+            method: 'POST', 
+            data: params,
+            success: hidePopup
+        });
+    }
+
+    function hidePopup() {
+        popup.hide();
+        popupScreen.hide();
+    }
+    // So that we can hide the popup on update.
+    el.hidePopup = hidePopup;
+
+    function labels(data) {
+        var div = $('<div>').addClass('labels');
+        if (data.labels && data.labels.length) {
+            $.each(data.labels, function(i, e) {
+                if (i != 0) div.append(' - ');
+                div.append($('<a>')
+                           .text(e.displayName)
+                           .on('click', function() {
+                               update({mode: e.name});
+                               pushHistory(params);
+                           }));
+            });
+            div.append(' - ');
+        }
+        div.append($('<a>').text('Add label').on('click', function() {
+            showPopup(data);
+        }));
+        return div;
+    }
+    
     function result(data) {
-        return $('<li>')
+        return $('<li>').addClass('result')
             .append($('<h3>')
                     .append($('<a>').attr('href', data.link)
                             .html(data.htmlTitle)))
             .append($('<cite>').html(data.formattedUrl))
-            .append($('<p>').html(data.htmlSnippet.replace(/<br>/g, '')));
+            .append($('<p>').html(data.htmlSnippet.replace(/<br>/g, '')))
+            .append(labels(data));
     }
 
     function spelling(data) {
-        var q = data.correctedQuery;
+        var q = data.correctedQuery.replace(/more:\w+/, '');
+        
         return $('<p>').addClass('spelling')
             .append('Did you mean ')
             .append($('<a>').text(q)
@@ -119,7 +226,8 @@ ui.results.web = function(root) {
 
     el.update = function(params) {
         var query = params.q;
-        if (params.mode == 'google') query += ' more:google';
+        if (params.mode && params.mode != 'web') 
+            query += ' more:' + params.mode;
 
         $.ajax({
             url: 'https://www.googleapis.com/customsearch/v1',
@@ -161,7 +269,6 @@ ui.results.images = function(root) {
     function result(data) {
         var cite = data.image.width + ' &times; ' + data.image.height + ' - ' + 
             data.displayLink;
-        console.log(data);
         return $('<li>')
             .append($('<a>')
                     .attr('href', data.image.contextLink)
@@ -172,6 +279,8 @@ ui.results.images = function(root) {
 
     function spelling(data) {
         var q = data.correctedQuery;
+        
+        
         return $('<p>').addClass('spelling')
             .append('Did you mean ')
             .append($('<a>').text(q)
@@ -213,14 +322,6 @@ ui.results.images = function(root) {
     return el;
 };
 
-ui.results.videos = function(root) {
-    var el = {};
-    el.update = function(params) {
-        root.text('Coming soon');
-    };
-    return el;
-};
-
 ui.results.all = function(root) {
     var el = {};
 
@@ -228,11 +329,14 @@ ui.results.all = function(root) {
     var results = {
         web: web,
         images: ui.results.images(root),
-        videos: ui.results.videos(root),
-        google: web
+        google: web,
+        blue: web,
+        green: web
     }
 
     el.update = function(params) {
+        // TODO(mwytock): Better way to handle this
+        web.hidePopup();
         log(params);
         results[params.mode ? params.mode : 'web'].update(params);
     };

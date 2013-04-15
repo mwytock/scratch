@@ -7,6 +7,12 @@ class QueryLogEntry(db.Model):
     query = db.StringProperty()
     date = db.DateTimeProperty(auto_now_add=True)
 
+class Label(db.Model):
+    timestamp = db.DateTimeProperty(auto_now_add=True)
+    url = db.StringProperty()
+    label = db.CategoryProperty(choices=("blue", "green"))
+    mode = db.CategoryProperty(choices=("page", "site"))
+
 class LogApi(webapp2.RequestHandler):
     def post(self):        
         log_entry = QueryLogEntry(query=self.request.get("q"))
@@ -27,8 +33,14 @@ class RecentApi(webapp2.RequestHandler):
         self.response.headers["Cache-control"] = "no-store"
         self.response.headers["Content-type"] = "application/json"
         self.response.out.write(json.dumps({"recent": recent}))
-        
-        
 
-app = webapp2.WSGIApplication([('/api/log', LogApi),
-                               ('/api/recent', RecentApi)])
+class LabelApi(webapp2.RequestHandler):
+    def post(self):
+        label = Label(url=self.request.get("url"),
+                      label=self.request.get("label"),
+                      mode=self.request.get("mode"))
+        label.put()
+        
+app = webapp2.WSGIApplication([("/api/log", LogApi),
+                               ("/api/recent", RecentApi),
+                               ("/api/label", LabelApi)])
