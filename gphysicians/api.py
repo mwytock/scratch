@@ -1,8 +1,11 @@
 import json
 import webapp2
 
+import cse_api_client
+
 from google.appengine.ext import db
 
+# models
 class QueryLogEntry(db.Model):
     query = db.StringProperty()
     date = db.DateTimeProperty(auto_now_add=True)
@@ -13,6 +16,7 @@ class Label(db.Model):
     label = db.CategoryProperty(choices=("blue", "green"))
     mode = db.CategoryProperty(choices=("page", "site"))
 
+# handlers
 class LogApi(webapp2.RequestHandler):
     def post(self):        
         log_entry = QueryLogEntry(query=self.request.get("q"))
@@ -40,6 +44,7 @@ class LabelApi(webapp2.RequestHandler):
                       label=self.request.get("label"),
                       mode=self.request.get("mode"))
         label.put()
+        cse_api_client.add_label(label)
         
 app = webapp2.WSGIApplication([("/api/log", LogApi),
                                ("/api/recent", RecentApi),

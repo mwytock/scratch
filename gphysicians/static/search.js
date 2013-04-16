@@ -8,7 +8,23 @@ var LABELS = [{
 }, {
     name: 'Green', 
     value: 'green'
+}, {
+    name: 'Overviews',
+    value: 'overviews'
+}, {
+    name: 'Meta-analysis', 
+    value: 'meta'
+}, {
+    name: 'Guidelines',
+    value: 'guidelines'
+}, {
+    name: 'Green', 
+    value: 'green'
+}, {
+    name: 'Blue',
+    value: 'blue'
 }];
+
 
 // The state of the page and the three UI components
 var params = {};
@@ -328,6 +344,10 @@ ui.results.all = function(root) {
     var web = ui.results.web(root);
     var results = {
         web: web,
+        overviews: web,
+        meta: web,
+        research: web,
+        guidelines: web,
         images: ui.results.images(root),
         google: web,
         blue: web,
