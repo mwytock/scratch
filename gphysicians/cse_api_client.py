@@ -9,6 +9,8 @@ import urllib
 import urllib2
 import urlparse
 
+import config
+
 obf_gaia_id = "015533284649053097143"
 cse_id = "eyct-samxvy"
 cx = obf_gaia_id + ":" + cse_id
@@ -35,8 +37,8 @@ class AuthRedirectHandler(urllib2.HTTPRedirectHandler):
         """Three step process to authenticate as a real user."""
         # Step 1 - ClientLogin
         fields = {
-            "Email": "sumedsearch@gmail.com",
-            "Passwd": "plyCEC01",
+            "Email": config.cse_user,
+            "Passwd": config.cse_pass,
             "service": "cprose"
             }
         response = self.parent.open(urllib2.Request(
