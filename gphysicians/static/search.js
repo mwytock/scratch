@@ -203,19 +203,25 @@ ui.results.web = function(root) {
                             return null;
                         
                         return $('<option>')
-                            .attr('value', l.value)
+                            .attr('value', l.label)
                             .text(l.name);
                     })));
         
+        var saving = false;
         popup.append(form)
             .append($('<div>').addClass('button-bar')
                     .append($('<button>').text('Save')
                             .on('click', function() {
+                                if (saving) return;
+                                saving = true;
+
                                 var params = form.serializeArray();
                                 params.push({
                                     name: 'url',
                                     value: data.link
                                 });
+
+                                $(this).text('Saving...');
                                 saveLabel(params);
                             }))
                     .append($('<button>').text('Cancel')
@@ -228,7 +234,7 @@ ui.results.web = function(root) {
             url: '/api/label',
             method: 'POST', 
             data: params,
-            success: hidePopup
+            success: refreshResults
         });
     }
 
@@ -238,6 +244,10 @@ ui.results.web = function(root) {
     }
     // So that we can hide the popup on update.
     el.hidePopup = hidePopup;
+
+    function refreshResults() {
+        el.update(params);
+    }
 
     function labels(data) {
         var div = $('<div>').addClass('labels');
@@ -314,6 +324,11 @@ ui.results.web = function(root) {
                 } else {
                     root.append(noResults(data.queries));
                 }
+
+                // This handles the case when search results are refreshed due
+                // to the user adding a label with the popup. This should
+                // probably be handled more explicitly.
+                hidePopup();
             }
         });
     };

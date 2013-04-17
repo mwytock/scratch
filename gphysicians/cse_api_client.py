@@ -1,8 +1,13 @@
+#!/usr/bin/env python
+#
+# Client for unofficial CSE API.
 
+import cookielib
+import json
 import logging
 import urllib 
 import urllib2
-import cookielib
+import urlparse
 
 obf_gaia_id = "015533284649053097143"
 cse_id = "eyct-samxvy"
@@ -19,7 +24,9 @@ class AuthRedirectHandler(urllib2.HTTPRedirectHandler):
     
     def http_error_302(self, req, fp, code, msg, headers):
         if self.requires_auth(headers):
-            return self.authenticate(req.get_full_url())
+            response = self.authenticate(req.get_full_url())
+            logging.info("Completed 3 step auth")
+            return response
 
         return urllib2.HTTPRedirectHandler.http_error_302(
             self, req, fp, code, msg, headers)
@@ -29,7 +36,7 @@ class AuthRedirectHandler(urllib2.HTTPRedirectHandler):
         # Step 1 - ClientLogin
         fields = {
             "Email": "sumedsearch@gmail.com",
-            "Passwd": # fill in password
+            "Passwd": "plyCEC01",
             "service": "cprose"
             }
         response = self.parent.open(urllib2.Request(
@@ -56,6 +63,7 @@ class AuthRedirectHandler(urllib2.HTTPRedirectHandler):
             "service": "cprose",
             "continue": redirect_url
         }
+
         return self.parent.open(urllib2.Request(
             url="https://www.google.com/accounts/TokenAuth",
             data=urllib.urlencode(fields)))
@@ -64,12 +72,16 @@ class AuthRedirectHandler(urllib2.HTTPRedirectHandler):
 opener = urllib2.build_opener(AuthRedirectHandler,
                               urllib2.HTTPCookieProcessor(cookie_jar))
 xsrf_token = None
+def clear_xsrf_token():
+    global xsrf_token
+    xsrf_token = None
+
 def get_xsrf_token():
     global xsrf_token
     if xsrf_token:
         return xsrf_token
 
-    xsrf_url = "http://www.google.com/cse/setup/advanced?cx=" + cx
+    xsrf_url = "http://www.google.com/cse/setup/basic?cx=" + cx
     response = opener.open(xsrf_url)
     
     # This is hack and should go in AuthRedirectHandler 
@@ -81,7 +93,7 @@ def get_xsrf_token():
     magic = "var annotationsXsrf='"
     index_a = html.find(magic)
     if index_a == -1:
-        raise Exception("magic string not found")
+        raise Exception("magic string for XSRF parsing not found")
 
     index_a += len(magic)
     index_b = html.find("'", index_a)
@@ -89,26 +101,55 @@ def get_xsrf_token():
     logging.info("Got XSRF token: " + xsrf_token)
     return xsrf_token    
 
+def label_request(label):
+    print label.mode
 
-def label_payload(url, label):
-    return ""
-
-def add_label(label):
     url = ("http://www.google.com/cse/api/%s/annotations/%s?xsrf=%s"
            % (obf_gaia_id, cse_id, get_xsrf_token()))
-    global auth_cookie
 
-    headers = {
-        "Cookie": auth_cookie,
-        "Content-type": "application/json",
-        "X-MakeUrlPattern": label.mode == "site"}
+    headers = {"Content-type": "application/json"}
+    if label.mode == "site":
+        headers["X-MakeUrlPattern"] = "true"
+        about = urlparse.urlparse(label.url).netloc
+    else:
+        about = label.url
 
-    result = urlfetch.fetch(url=cse_api_url(),
-                            payload=label_payload(label),
-                            method=urlfetch.POST,
-                            headers=headers)
+    data = json.dumps({
+        "Add": { 
+            "Annotations": {
+                "Annotation": [{
+                    "about": about,
+                    "label": [{"name": "_cse_" + cse_id},
+                              {"name": label.label}]
+                }]
+            }
+        }
+    })
+
+    return urllib2.Request(url, data, headers)
+
+def add_label(label):
+    num_tries = 2
+    for i in range(num_tries):
+        try: 
+            result = opener.open(label_request(label))
+            # Success
+            return
+        except urllib2.HTTPError as e:
+            # On a 400, try to refresh the XSRF token and retry
+            if e.code == 400 and i != num_tries - 1:
+                logging.info("Got 400 when POSTing label, retrying")
+                clear_xsrf_token()
+                continue
+
+            # On any other error give up
+            raise e
     
-    # TODO(mwytock): Handle failures (need new XSRF token or new SID cookie)
+
+                      
+        
+        
+
                 
                 
                             

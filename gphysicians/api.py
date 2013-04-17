@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+#
+# JSON APIs for gphysicians app
+
 import json
 import webapp2
 
@@ -44,7 +48,7 @@ class LabelApi(webapp2.RequestHandler):
                       label=self.request.get("label"),
                       mode=self.request.get("mode"))
         label.put()
-        #cse_api_client.add_label(label)
+        cse_api_client.add_label(label)
         
 app = webapp2.WSGIApplication([("/api/log", LogApi),
                                ("/api/recent", RecentApi),
