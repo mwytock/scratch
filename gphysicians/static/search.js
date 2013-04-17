@@ -3,28 +3,69 @@ var KEY = 'AIzaSyDzvGIlo_6GmdRasOTnN17hJ9rS3hx_3OA';
 var CX = '015533284649053097143:eyct-samxvy';
 
 var LABELS = [{
+    label: 'web',
+    name: 'Web (Blue & Green)',
+    exclude_from_add: true
+}, {
+    label: 'overviews',
+    name: 'Overviews'
+}, {
+    label: 'meta',
+    name: 'Meta-analysis'
+}, {
+    label: 'research',
+    name: 'Original research'
+}, {
+    label: 'guidelines',
+    name: 'Guidelines'
+}, {
+    label: 'news',
+    name: 'News'
+}, {
+    label: 'reviews',
+    name: 'Review articles'
+}, {
+    label: 'publiciations',
+    name: 'All publications'
+}, {
+    label: 'rx',
+    name: 'Rx'
+}, {
+    label: 'clinical',
+    name: 'Clinical cases'
+}, {
+    label: 'reference',
+    name: 'Reference'
+}, {
+    label: 'alternative',
+    name: 'Alternative medicine'
+}, {
+    label: 'physical',
+    name: 'Physical exams'
+}, {
+    label: 'calculators',
+    name: 'Medical calculators'
+}, {
+    label: 'images',
+    name: 'Images',
+    exclude_from_add: true
+}, {
+    label: 'videos',
+    name: 'Videos',
+    exclude_from_add: true
+}, {
+    label: 'google',
+    name: 'Google',
+    exclude_from_add: true
+}, {
+    label: 'blue',
     name: 'Blue',
-    value: 'blue'
+    exclude_from_add: true
 }, {
-    name: 'Green', 
-    value: 'green'
-}, {
-    name: 'Overviews',
-    value: 'overviews'
-}, {
-    name: 'Meta-analysis', 
-    value: 'meta'
-}, {
-    name: 'Guidelines',
-    value: 'guidelines'
-}, {
-    name: 'Green', 
-    value: 'green'
-}, {
-    name: 'Blue',
-    value: 'blue'
+    label: 'green',
+    name: 'Green',
+    exclude_from_add: true
 }];
-
 
 // The state of the page and the three UI components
 var params = {};
@@ -72,21 +113,26 @@ function pushHistory(params) {
 var ui = {};
 ui.modes = function(root) {
     var selected = null;
-    
+    var labelToAnchor = {};
+    root.html($.map(LABELS, function(x) {
+        var a = $('<a>')
+            .text(x.name)
+            .on('click', function(e) {
+                update({mode: x.label})
+                pushHistory(params);
+            });
+        labelToAnchor[x.label] = a;
+        return $('<li>').append(a);
+    }));
+
     var el = {};
     el.update = function(params) {
         var mode = params.mode ? params.mode : 'web';
-        var a = root.find('a[mode="' + mode + '"]');
-
+        var a = labelToAnchor[mode];
         if (selected) selected.removeClass('selected');
         a.addClass('selected');
         selected = a;
     };
-
-    root.find('a').on('click', function(e) {
-        update({mode: $(this).attr('mode')});
-        pushHistory(params);
-    });
     
     return el;
 };
@@ -153,6 +199,9 @@ ui.results.web = function(root) {
             .append($('<select>')
                     .attr('name', 'label')
                     .html($.map(LABELS, function(l) {
+                        if (l.exclude_from_add)
+                            return null;
+                        
                         return $('<option>')
                             .attr('value', l.value)
                             .text(l.name);
@@ -342,23 +391,18 @@ ui.results.all = function(root) {
     var el = {};
 
     var web = ui.results.web(root);
-    var results = {
-        web: web,
-        overviews: web,
-        meta: web,
-        research: web,
-        guidelines: web,
-        images: ui.results.images(root),
-        google: web,
-        blue: web,
-        green: web
-    }
+    var images = ui.results.images(root);
 
     el.update = function(params) {
         // TODO(mwytock): Better way to handle this
         web.hidePopup();
         log(params);
-        results[params.mode ? params.mode : 'web'].update(params);
+
+        // Special UI for images
+        if (params.mode == 'images')
+            images.update(params);
+        else 
+            web.update(params);
     };
 
     function log(params) {

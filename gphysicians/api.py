@@ -13,7 +13,7 @@ class QueryLogEntry(db.Model):
 class Label(db.Model):
     timestamp = db.DateTimeProperty(auto_now_add=True)
     url = db.StringProperty()
-    label = db.CategoryProperty(choices=("blue", "green"))
+    label = db.StringProperty()
     mode = db.CategoryProperty(choices=("page", "site"))
 
 # handlers
@@ -44,7 +44,7 @@ class LabelApi(webapp2.RequestHandler):
                       label=self.request.get("label"),
                       mode=self.request.get("mode"))
         label.put()
-        cse_api_client.add_label(label)
+        #cse_api_client.add_label(label)
         
 app = webapp2.WSGIApplication([("/api/log", LogApi),
                                ("/api/recent", RecentApi),
