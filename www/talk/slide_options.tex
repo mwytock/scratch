@@ -1,0 +1,93 @@
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{fancybox}
+\usepackage{fancyvrb}
+\usepackage{xcolor}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{gensymb}
+
+%\usepackage{tcolorbox}
+
+
+\definecolor{lightgray}{gray}{0.9} % 10%
+
+\newenvironment{colframe}{%
+  \setlength{\fboxsep}{0.1in}
+  \begin{Sbox}
+    \begin{minipage}{0.85\columnwidth}
+}{%
+  \end{minipage}
+  \end{Sbox}
+  \begin{center}
+    \fcolorbox{black}{lightgray}{\TheSbox}
+  \end{center}
+} 
+
+\setbeamercolor{block body}{fg=black,bg=lightgray}
+\setbeamercolor{block out}{fg=black,bg=lightgray}
+
+
+
+\setbeamertemplate{navigation symbols}{}
+\usefonttheme[onlymath]{serif}
+\setbeamertemplate{frametitle}
+{
+\begin{centering}
+\vspace{15pt}
+\textbf{\insertframetitle}\par
+\end{centering}
+}
+
+%\setbeamertemplate{footline}{\hspace{15pt}\tiny{\classnumber: \lecturetitle
+%\hfill\insertframenumber}\hspace{15pt} \vspace{15pt}}
+\setbeamertemplate{footline}{\hfill \slidestring\hspace{10pt}\vspace{10pt}}
+
+
+
+% small centered block
+\newenvironment<>{varblock}[2][\textwidth]{
+    \begin{center}
+      \begin{minipage}{#1}
+      \renewcommand{\'}{\symbol{13}}
+        \setlength{\textwidth}{#1}
+        \setlength{\leftmargin}{12pt}
+          \begin{actionenv}#3
+            \def\insertblocktitle{#2}
+            \par
+            \usebeamertemplate{block begin}
+            \begin{semiverbatim}}
+  {\par \end{semiverbatim}
+      \usebeamertemplate{block end}
+    \end{actionenv}
+  \end{minipage}
+\end{center}}
+
+
+% itemize seperation
+\newlength{\wideitemsep}
+\setlength{\wideitemsep}{\itemsep}
+\addtolength{\wideitemsep}{12pt}
+\let\olditem\item
+\renewcommand{\item}{\setlength{\itemsep}{\wideitemsep}\olditem}
+
+\setlength{\leftmargini}{12pt}
+%\leftmarginii
+%\leftmarginiii 
+
+
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\subjectto}{subject\;to}
+\DeclareMathOperator*{\diag}{diag}
+
+\setbeamercolor{item}{parent={local}}
+\setbeamertemplate{itemize item}{\hspace{-20pt}$\bullet$}
+\setbeamertemplate{itemize subitem}{--}
+
+
+
+
+\title{\textbf{\lecturetitle}}
